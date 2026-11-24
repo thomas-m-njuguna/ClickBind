@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClickBind</title>
+  <script src="assets/tailwind.js"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'light-primary': '#004F96',
+            'light-on-primary': '#FFFFFF',
+            'light-primary-container': '#0067C0',
+            'light-on-primary-container': '#DBE7FF',
+            'light-secondary': '#485F83',
+            'light-on-secondary': '#FFFFFF',
+            'light-secondary-container': '#BED6FF',
+            'light-on-secondary-container': '#465C80',
+            'light-tertiary': '#833900',
+            'light-on-tertiary': '#FFFFFF',
+            'light-tertiary-container': '#A84C00',
+            'light-on-tertiary-container': '#FFE0D1',
+            'light-success': '#107C10',
+            'light-on-success': '#FFFFFF',
+            'light-success-container': '#DFF6DD',
+            'light-on-success-container': '#0B530B',
+            'light-error': '#BA1A1A',
+            'light-on-error': '#FFFFFF',
+            'light-error-container': '#FFDAD6',
+            'light-on-error-container': '#93000A',
+            'light-background': '#F9F9FF',
+            'light-on-background': '#191C21',
+            'light-surface': '#F9F9FF',
+            'light-surface-dim': '#D8DAE2',
+            'light-surface-bright': '#F9F9FF',
+            'light-surface-container-lowest': '#FFFFFF',
+            'light-surface-container-low': '#F2F3FB',
+            'light-surface-container': '#ECEDF6',
+            'light-surface-container-high': '#E6E8F0',
+            'light-surface-container-highest': '#E1E2EA',
+            'light-on-surface': '#191C21',
+            'light-surface-variant': '#DDE2F0',
+            'light-on-surface-variant': '#414752',
+            'light-outline': '#717783',
+            'light-outline-variant': '#C1C6D4',
+            'light-inverse-surface': '#2D3037',
+            'light-inverse-on-surface': '#EFF0F8',
+            'light-inverse-primary': '#A6C8FF',
+            'light-shadow': '#000000',
+            'light-scrim': '#000000'
+          },
+          borderRadius: { 'sm': '6px', 'DEFAULT': '8px', 'md': '12px', 'lg': '16px', 'full': '9999px' },
+          spacing: {
+            'gutter-xs': '4px', 'gutter-sm': '8px', 'gutter-md': '12px', 'gutter-lg': '16px',
+            'gutter-xl': '24px', 'section': '32px', 'page-margin': '24px'
+          },
+          fontFamily: {
+            'headline': ['"Red Hat Text"', 'sans-serif'],
+            'title': ['"Red Hat Text"', 'sans-serif'],
+            'body': ['"Instrument Sans"', 'sans-serif'],
+            'label': ['"Instrument Sans"', 'sans-serif'],
+            'mono': ['"Red Hat Mono"', 'monospace']
+          },
+          fontSize: {
+            'headline-lg': ['24px', { lineHeight: '32px', letterSpacing: '-0.25px', fontWeight: '600' }],
+            'headline-md': ['18px', { lineHeight: '24px', letterSpacing: '-0.15px', fontWeight: '600' }],
+            'title-md': ['15px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '600' }],
+            'body-lg': ['15px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '400' }],
+            'body-md': ['13px', { lineHeight: '18px', letterSpacing: '0px', fontWeight: '400' }],
+            'label-lg': ['13px', { lineHeight: '18px', letterSpacing: '0px', fontWeight: '500' }],
+            'label-sm': ['11px', { lineHeight: '14px', letterSpacing: '0.2px', fontWeight: '600' }],
+            'mono-md': ['12px', { lineHeight: '16px', letterSpacing: '0px', fontWeight: '500' }]
+          },
+          transitionDuration: { 'state-change': '100ms' },
+          transitionTimingFunction: { 'state-change': 'ease-out' }
+        }
+      }
+    };
+  </script>
+  <link href="assets/fonts.css" rel="stylesheet">
+  <style>
+    html, body { height: 100%; }
+    body { overflow: hidden; }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #c1c6d4; border-radius: 8px; border: 2px solid #f9f9ff; }
+    ::-webkit-scrollbar-thumb:hover { background: #a9b0bd; }
+    #titlebar { cursor: default; }
+    .no-select { -webkit-user-select: none; user-select: none; }
+    input[type="range"] { accent-color: #004F96; }
+  </style>
+</head>
+<body class="bg-light-surface text-light-on-surface font-body antialiased overflow-hidden no-select">
+
+  <div class="h-screen flex flex-col bg-light-surface">
+
+    <!-- Windows 11 Native Title Bar -->
+    <header id="titlebar" class="h-10 bg-light-surface-container-low border-b border-light-outline-variant px-gutter-lg flex items-center justify-between select-none shrink-0">
+      <div class="flex items-center gap-gutter-sm">
+        <div class="w-6 h-6 rounded-sm bg-light-primary text-light-on-primary flex items-center justify-center">
+          <span class="material-symbols-outlined text-[16px]" aria-hidden="true">mouse</span>
+        </div>
+        <span class="font-headline text-label-lg text-light-on-surface">ClickBind</span>
+        <span class="font-body text-label-sm text-light-on-surface-variant px-gutter-sm py-gutter-xs rounded-sm bg-light-surface-container">Windows Desktop</span>
+      </div>
+
+      <div class="flex items-center gap-gutter-xs" aria-label="Window controls">
+        <button id="win-tray" type="button" aria-label="Hide to tray" title="Hide to tray" class="w-9 h-7 rounded-sm flex items-center justify-center text-light-on-surface-variant hover:bg-light-surface-container-high transition-colors duration-state-change ease-state-change">
+          <span class="material-symbols-outlined text-[18px]" aria-hidden="true">keyboard_arrow_down</span>
+        </button>
+        <button id="win-min" type="button" aria-label="Minimize window" class="w-9 h-7 rounded-sm flex items-center justify-center text-light-on-surface-variant hover:bg-light-surface-container-high transition-colors duration-state-change ease-state-change">
+          <span class="material-symbols-outlined text-[16px]" aria-hidden="true">minimize</span>
+        </button>
+        <button id="win-max" type="button" aria-label="Maximize window" class="w-9 h-7 rounded-sm flex items-center justify-center text-light-on-surface-variant hover:bg-light-surface-container-high transition-colors duration-state-change ease-state-change">
+          <span id="win-max-icon" class="material-symbols-outlined text-[15px]" aria-hidden="true">crop_square</span>
+        </button>
+        <button id="win-close" type="button" aria-label="Close window" class="w-9 h-7 rounded-sm flex items-center justify-center text-light-on-surface-variant hover:bg-light-error hover:text-light-on-error transition-colors duration-state-change ease-state-change">
+          <span class="material-symbols-outlined text-[16px]" aria-hidden="true">close</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="flex-1 flex flex-col md:flex-row min-h-0">
+
+      <!-- Left Navigation Rail -->
+      <aside class="w-full md:w-64 shrink-0 bg-light-surface-container-low border-b md:border-b-0 md:border-r border-light-outline-variant p-gutter-lg flex flex-col justify-between gap-gutter-xl overflow-y-auto">
+        <div class="flex flex-col gap-gutter-xl">
+
+          <div class="p-gutter-md rounded bg-light-surface-container-lowest border border-light-outline-variant flex items-center justify-between gap-gutter-md">
+            <div class="flex flex-col gap-gutter-xs">
+              <div class="flex items-center gap-gutter-sm">
+                <span id="status-badge" data-component-type="badge" role="status" class="inline-flex items-center gap-gutter-xs px-gutter-sm py-gutter-xs rounded-full bg-light-success-container text-light-on-success-container">
+                  <span id="status-dot" class="w-2 h-2 rounded-full bg-light-success" aria-hidden="true"></span>
+                  <span id="status-text" class="font-body text-label-sm">Active</span>
+                </span>
+              </div>
+              <span id="hook-caption" class="font-body text-body-md text-light-on-surface-variant">Global mouse hook</span>
+            </div>
+
+            <button id="engine-toggle" type="button" role="switch" aria-checked="true" aria-label="Toggle ClickBind engine" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border border-light-primary bg-light-primary p-0.5 transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary focus-visible:ring-offset-2">
+              <span id="engine-thumb" class="pointer-events-none inline-block h-4 w-4 translate-x-5 rounded-full bg-light-on-primary transition-transform duration-state-change ease-state-change"></span>
+            </button>
+          </div>
+
+          <nav aria-label="Main navigation" class="flex flex-col gap-gutter-xs">
+            <button type="button" data-nav-tab="shortcuts" class="nav-tab flex items-center justify-between gap-gutter-md px-gutter-md py-gutter-sm rounded-sm bg-light-surface-container-lowest border border-light-outline-variant text-light-primary transition-colors duration-state-change ease-state-change">
+              <span class="flex items-center gap-gutter-md">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">keyboard</span>
+                <span class="font-body text-label-lg">Shortcuts</span>
+              </span>
+              <span data-component-type="badge" role="status" class="inline-flex items-center justify-center px-gutter-sm py-gutter-xs rounded-full bg-light-surface-container-high text-light-on-surface-variant">
+                <span id="nav-count" class="font-body text-label-sm tabular-nums">3</span>
+              </span>
+            </button>
+
+            <button type="button" data-nav-tab="timing" class="nav-tab flex items-center gap-gutter-md px-gutter-md py-gutter-sm rounded-sm border border-transparent text-light-on-surface-variant hover:bg-light-surface-container-high hover:text-light-on-surface transition-colors duration-state-change ease-state-change">
+              <span class="material-symbols-outlined text-[18px]" aria-hidden="true">tune</span>
+              <span class="font-body text-label-lg">Timing &amp; sensitivity</span>
+            </button>
+
+            <button type="button" data-nav-tab="clipboard" class="nav-tab flex items-center gap-gutter-md px-gutter-md py-gutter-sm rounded-sm border border-transparent text-light-on-surface-variant hover:bg-light-surface-container-high hover:text-light-on-surface transition-colors duration-state-change ease-state-change">
+              <span class="material-symbols-outlined text-[18px]" aria-hidden="true">content_paste</span>
+              <span class="font-body text-label-lg">Clipboard</span>
+            </button>
+          </nav>
+        </div>
+
+        <div class="flex flex-col gap-gutter-md pt-gutter-lg border-t border-light-outline-variant">
+          <div class="flex flex-col gap-gutter-xs">
+            <span class="font-body text-label-sm text-light-on-surface">Running in system tray</span>
+            <span class="font-body text-body-md text-light-on-surface-variant">Global mode · v1.4.2</span>
+          </div>
+          <button id="reset-btn" type="button" class="inline-flex items-center justify-center gap-gutter-sm px-gutter-md py-gutter-sm rounded-sm bg-light-surface-container-lowest text-light-on-surface border border-light-outline-variant hover:bg-light-surface-container-high transition-colors duration-state-change ease-state-change">
+            <span class="material-symbols-outlined text-[16px]" aria-hidden="true">restart_alt</span>
+            <span class="font-body text-label-lg">Reset defaults</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Content Panel -->
+      <main class="flex-1 min-h-0 overflow-y-auto p-gutter-xl md:p-section flex flex-col gap-gutter-xl">
+
+        <section id="panel-shortcuts" class="flex flex-col gap-gutter-xl">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-gutter-lg">
+            <div class="flex flex-col gap-gutter-xs">
+              <h1 class="font-headline text-headline-lg text-light-on-surface text-balance">Global mouse shortcuts</h1>
+              <p class="font-body text-body-md text-light-on-surface-variant text-pretty">
+                Perform these mouse button gestures anywhere in Windows to trigger instant actions.
+              </p>
+            </div>
+
+            <button id="add-btn" type="button" class="inline-flex items-center justify-center gap-gutter-sm px-gutter-lg py-gutter-sm rounded-sm bg-light-primary text-light-on-primary hover:bg-light-primary-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary focus-visible:ring-offset-2 active:scale-[0.99] transition-colors duration-state-change ease-state-change shrink-0">
+              <span class="material-symbols-outlined text-[18px]" aria-hidden="true">add</span>
+              <span class="font-body text-label-lg">Add shortcut</span>
+            </button>
+          </div>
+
+          <article id="engine-banner" class="p-gutter-lg rounded bg-light-surface-container-lowest border border-light-outline-variant flex flex-col sm:flex-row sm:items-center justify-between gap-gutter-lg">
+            <div class="flex items-center gap-gutter-md">
+              <div id="banner-icon-wrap" class="w-10 h-10 rounded-sm bg-light-success-container text-light-on-success-container flex items-center justify-center shrink-0">
+                <span id="banner-icon" class="material-symbols-outlined text-[22px]" aria-hidden="true">check_circle</span>
+              </div>
+              <div class="flex flex-col gap-gutter-xs">
+                <h2 id="banner-title" class="font-headline text-title-md text-light-on-surface">Engine active across all Windows apps</h2>
+                <p id="banner-subtitle" class="font-body text-body-md text-light-on-surface-variant tabular-nums">3 shortcuts enabled · Double-click window 280 ms · Chord window 90 ms</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-gutter-sm shrink-0">
+              <button id="test-btn" type="button" class="inline-flex items-center justify-center gap-gutter-sm px-gutter-lg py-gutter-sm rounded-sm bg-light-surface-container-lowest text-light-on-surface border border-light-outline-variant hover:bg-light-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary focus-visible:ring-offset-2 transition-colors duration-state-change ease-state-change">
+                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">mouse</span>
+                <span class="font-body text-label-lg">Test gesture</span>
+              </button>
+            </div>
+          </article>
+
+          <div class="flex flex-col gap-gutter-md">
+            <div class="flex items-center justify-between">
+              <h2 class="font-headline text-headline-md text-light-on-surface">Bound shortcuts</h2>
+              <span class="font-body text-body-md text-light-on-surface-variant">Change a shortcut to rebind it, or delete the ones you do not need</span>
+            </div>
+            <div id="shortcuts-list" class="grid grid-cols-1 gap-gutter-md"></div>
+          </div>
+        </section>
+
+        <section id="panel-timing" class="hidden flex-col gap-gutter-xl">
+          <div class="flex flex-col gap-gutter-xs">
+            <h1 class="font-headline text-headline-lg text-light-on-surface">Timing &amp; sensitivity</h1>
+            <p class="font-body text-body-md text-light-on-surface-variant">
+              Fine-tune how quickly ClickBind recognizes double-clicks and dual-button chords.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 gap-gutter-md">
+            <article class="p-gutter-lg rounded bg-light-surface-container-lowest border border-light-outline-variant flex flex-col gap-gutter-md">
+              <div class="flex items-center justify-between gap-gutter-md">
+                <div class="flex flex-col gap-gutter-xs">
+                  <h2 class="font-headline text-title-md text-light-on-surface">Double-click interval</h2>
+                  <p class="font-body text-body-md text-light-on-surface-variant">Maximum time between two clicks to trigger double right-click or double left-click.</p>
+                </div>
+                <span id="dblclick-value" class="font-mono text-mono-md text-light-primary bg-light-surface-container px-gutter-md py-gutter-xs rounded-sm tabular-nums">280 ms</span>
+              </div>
+              <input id="dblclick-slider" type="range" min="150" max="500" step="10" value="280" class="w-full cursor-pointer">
+            </article>
+
+            <article class="p-gutter-lg rounded bg-light-surface-container-lowest border border-light-outline-variant flex flex-col gap-gutter-md">
+              <div class="flex items-center justify-between gap-gutter-md">
+                <div class="flex flex-col gap-gutter-xs">
+                  <h2 class="font-headline text-title-md text-light-on-surface">Both-buttons chord window</h2>
+                  <p class="font-body text-body-md text-light-on-surface-variant">Tolerance window when pressing Left + Right buttons together for a snapshot.</p>
+                </div>
+                <span id="chord-value" class="font-mono text-mono-md text-light-primary bg-light-surface-container px-gutter-md py-gutter-xs rounded-sm tabular-nums">90 ms</span>
+              </div>
+              <input id="chord-slider" type="range" min="40" max="160" step="10" value="90" class="w-full cursor-pointer">
+            </article>
+
+            <label class="flex items-center justify-between gap-gutter-xl p-gutter-lg rounded bg-light-surface-container-lowest border border-light-outline-variant cursor-pointer">
+              <div class="flex flex-col gap-gutter-xs">
+                <span class="font-body text-label-lg text-light-on-surface">Launch ClickBind at Windows startup</span>
+                <span id="startup-desc" class="font-body text-body-md text-light-on-surface-variant">Automatically start minimized in the system tray when you sign in.</span>
+              </div>
+              <button id="startup-switch" type="button" role="switch" aria-checked="true" aria-describedby="startup-desc" class="pref-switch relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border border-light-primary bg-light-primary p-0.5 transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary focus-visible:ring-offset-2">
+                <span class="pointer-events-none inline-block h-4 w-4 translate-x-5 rounded-full bg-light-on-primary transition-transform duration-state-change ease-state-change"></span>
+              </button>
+            </label>
+
+            <label class="flex items-center justify-between gap-gutter-xl p-gutter-lg rounded bg-light-surface-container-lowest border border-light-outline-variant cursor-pointer">
+              <div class="flex flex-col gap-gutter-xs">
+                <span class="font-body text-label-lg text-light-on-surface">Top-right corner opens Task View</span>
+                <span id="corner-desc" class="font-body text-body-md text-light-on-surface-variant">Move the pointer into the top-right corner of your primary screen to show recent windows.</span>
+              </div>
+              <button id="corner-switch" type="button" role="switch" aria-checked="true" aria-describedby="corner-desc" class="pref-switch relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border border-light-primary bg-light-primary p-0.5 transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary focus-visible:ring-offset-2">
+                <span class="pointer-events-none inline-block h-4 w-4 translate-x-5 rounded-full bg-light-on-primary transition-transform duration-state-change ease-state-change"></span>
+              </button>
+            </label>
+          </div>
+        </section>
+
+        <section id="panel-clipboard" class="hidden flex-col gap-gutter-xl">
+          <div class="flex flex-col gap-gutter-xs">
+            <h1 class="font-headline text-headline-lg text-light-on-surface">Clipboard</h1>
+            <p class="font-body text-body-md text-light-on-surface-variant">
+              Everything ClickBind copied with your mouse shortcuts in this session.
+            </p>
+          </div>
+
+          <div id="clipboard-list" class="rounded bg-light-surface-container-lowest border border-light-outline-variant divide-y divide-light-outline-variant overflow-hidden"></div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <div id="toast-host" class="fixed bottom-6 right-6 flex flex-col gap-gutter-sm z-[100] pointer-events-none"></div>
+
+  <!-- Edit / Add Shortcut Modal -->
+  <dialog id="shortcut-modal" aria-labelledby="modal-title" aria-describedby="modal-desc" class="rounded-md bg-light-surface-container-lowest text-light-on-surface border border-light-outline-variant shadow-xl p-0 w-full max-w-md backdrop:bg-light-scrim/40">
+    <header class="flex items-start justify-between gap-gutter-md p-gutter-xl border-b border-light-outline-variant">
+      <div class="flex flex-col gap-gutter-xs">
+        <h2 id="modal-title" class="font-headline text-headline-md text-light-on-surface">Change shortcut</h2>
+        <p id="modal-desc" class="font-body text-body-md text-light-on-surface-variant">Select a mouse button trigger and the Windows action to run.</p>
+      </div>
+      <button id="modal-close" type="button" aria-label="Close dialog" class="inline-flex items-center justify-center w-8 h-8 rounded-sm text-light-on-surface-variant hover:bg-light-surface-container-high">
+        <span class="material-symbols-outlined text-[18px]" aria-hidden="true">close</span>
+      </button>
+    </header>
+
+    <form id="shortcut-form" class="p-gutter-xl flex flex-col gap-gutter-lg">
+      <div class="flex flex-col gap-gutter-xs">
+        <label for="trigger-select" class="font-body text-label-lg text-light-on-surface">Mouse trigger</label>
+        <select id="trigger-select" class="rounded-sm border border-light-outline-variant bg-light-surface-container-lowest text-light-on-surface font-body text-body-md px-gutter-md py-gutter-sm focus:border-light-primary focus:ring-light-primary">
+          <option value="double-right">Double right-click</option>
+          <option value="double-left">Double left-click</option>
+          <option value="both-buttons">Left + Right click together</option>
+          <option value="middle-click">Middle wheel click</option>
+          <option value="side-back">Side button 4 — thumb Back button</option>
+          <option value="side-forward">Side button 5 — thumb Forward button</option>
+          <option value="hold-left">Hold left button (0.5 s)</option>
+          <option value="hold-right">Hold right button (0.5 s)</option>
+          <option value="hold-both">Hold left + right buttons together (0.5 s)</option>
+        </select>
+        <p id="trigger-hint" class="font-body text-body-md text-light-on-surface-variant"></p>
+      </div>
+
+      <div class="flex flex-col gap-gutter-xs">
+        <label for="action-select" class="font-body text-label-lg text-light-on-surface">Windows action</label>
+        <select id="action-select" class="rounded-sm border border-light-outline-variant bg-light-surface-container-lowest text-light-on-surface font-body text-body-md px-gutter-md py-gutter-sm focus:border-light-primary focus:ring-light-primary">
+          <option value="copy">Copy selection (Ctrl + C)</option>
+          <option value="paste">Paste from clipboard (Ctrl + V)</option>
+          <option value="snapshot">Take screen snapshot (Win + Shift + S)</option>
+          <option value="cut">Cut selection (Ctrl + X)</option>
+          <option value="selectall">Select all (Ctrl + A)</option>
+          <option value="undo">Undo last action (Ctrl + Z)</option>
+          <option value="none">Remove shortcut (no action)</option>
+        </select>
+      </div>
+
+      <div id="gesture-test-pad" class="p-gutter-lg rounded bg-light-surface-container-low border border-dashed border-light-outline flex flex-col items-center justify-center gap-gutter-xs text-center select-none cursor-pointer">
+        <span id="gesture-pad-mouse" class="shrink-0 flex items-center justify-center" aria-hidden="true"></span>
+        <span id="gesture-pad-status" class="font-body text-label-lg text-light-on-surface">Click here to test your mouse button</span>
+        <span class="font-body text-body-md text-light-on-surface-variant">Detects single and double clicks, middle click, left + right together, thumb buttons 4 + 5, and holding a button</span>
+      </div>
+    </form>
+
+    <footer class="flex items-center justify-end gap-gutter-sm px-gutter-xl py-gutter-lg bg-light-surface-container-low border-t border-light-outline-variant">
+      <button id="modal-cancel" type="button" class="px-gutter-lg py-gutter-sm rounded-sm border border-light-outline-variant bg-light-surface-container-lowest text-light-on-surface hover:bg-light-surface-container-high">
+        <span class="font-body text-label-lg">Cancel</span>
+      </button>
+      <button id="modal-save" type="button" class="px-gutter-lg py-gutter-sm rounded-sm bg-light-primary text-light-on-primary hover:bg-light-primary-container">
+        <span class="font-body text-label-lg">Save shortcut</span>
+      </button>
+    </footer>
+  </dialog>
+
+  <script>
+    (function () {
+      var bridge = window.chrome && window.chrome.webview;
+      var $ = function (id) { return document.getElementById(id); };
+
+      var TRIGGER_META = {
+        'double-right': { label: 'Double right-click', badge: '2× Right', highlight: 'right' },
+        'double-left': { label: 'Double left-click', badge: '2× Left', highlight: 'left' },
+        'both-buttons': { label: 'Left + Right click', badge: 'L + R', highlight: 'both' },
+        'middle-click': { label: 'Middle wheel click', badge: 'Middle', highlight: 'middle' },
+        'side-back': { label: 'Thumb Back button', badge: 'Btn 4', highlight: 'back' },
+        'side-forward': { label: 'Thumb Forward button', badge: 'Btn 5', highlight: 'forward' },
+        'hold-left': { label: 'Hold left button', badge: 'Hold', highlight: 'left' },
+        'hold-right': { label: 'Hold right button', badge: 'Hold', highlight: 'right' },
+        'hold-both': { label: 'Hold left + right together', badge: 'Hold L + R', highlight: 'both' }
+      };
+
+      var TRIGGER_HINT = {
+        'side-back': 'Button 4 is the rear thumb button on the side of your mouse — the one that normally goes Back in browsers.',
+        'side-forward': 'Button 5 is the front thumb button on the side of your mouse — the one that normally goes Forward in browsers.',
+        'hold-left': 'Press and hold the left button without moving for about half a second to trigger this action.',
+        'hold-right': 'Press and hold the right button without moving for about half a second to trigger this action. Single right-clicks wait briefly while this is bound.',
+        'hold-both': 'Hold the left and right buttons down together without moving for about half a second.',
+        'both-buttons': 'Press the left and right buttons together within the chord window.',
+        'middle-click': 'Press the scroll wheel down as a button.',
+        'double-left': 'Click the left button twice quickly.',
+        'double-right': 'Click the right button twice quickly.'
+      };
+
+      var ACTION_META = {
+        'copy': { title: 'Copy selection', keybind: 'Ctrl + C', icon: 'content_copy', desc: 'Copies the currently selected text or file to the Windows clipboard.' },
+        'paste': { title: 'Paste from clipboard', keybind: 'Ctrl + V', icon: 'content_paste', desc: 'Pastes clipboard contents at the active cursor position.' },
+        'snapshot': { title: 'Take screen snapshot', keybind: 'Win + Shift + S', icon: 'screenshot_monitor', desc: 'Opens the Windows snipping overlay to capture a region, window or the full screen.' },
+        'cut': { title: 'Cut selection', keybind: 'Ctrl + X', icon: 'content_cut', desc: 'Cuts the selected item to the Windows clipboard.' },
+        'selectall': { title: 'Select all', keybind: 'Ctrl + A', icon: 'select_all', desc: 'Selects everything in the active document, list or text field.' },
+        'undo': { title: 'Undo last action', keybind: 'Ctrl + Z', icon: 'undo', desc: 'Reverses the most recent action in the active window.' },
+        'task-view': { title: 'Open Task View', keybind: 'Win + Tab', icon: 'view_carousel', desc: 'Opens the Windows desktop switcher and timeline.' },
+        'none': { title: 'No action', keybind: '', icon: 'block', desc: 'This trigger is not bound to an action.' }
+      };
+
+      var TRIGGER_ORDER = ['double-right', 'double-left', 'both-buttons', 'middle-click', 'side-back', 'side-forward', 'hold-left', 'hold-right', 'hold-both'];
+
+      var state = {
+        active: true,
+        doubleMs: 280,
+        chordMs: 90,
+        startWithWindows: true,
+        hotCorner: true,
+        maximized: false,
+        bindings: [
+          { trigger: 'double-right', action: 'copy', enabled: true },
+          { trigger: 'double-left', action: 'paste', enabled: true },
+          { trigger: 'both-buttons', action: 'snapshot', enabled: true }
+        ],
+        clipboard: []
+      };
+
+      var editingTrigger = null;
+
+      function post(msg) {
+        if (bridge) bridge.postMessage(msg);
+      }
+
+      function renderMouseSvg(highlight) {
+        var leftFill = (highlight === 'left' || highlight === 'both') ? 'fill-light-primary' : 'fill-light-surface-container';
+        var rightFill = (highlight === 'right' || highlight === 'both') ? 'fill-light-primary' : 'fill-light-surface-container';
+        var middleFill = (highlight === 'middle') ? 'fill-light-primary' : 'fill-light-outline';
+        var backFill = (highlight === 'back') ? 'fill-light-primary' : 'fill-light-surface-container';
+        var forwardFill = (highlight === 'forward') ? 'fill-light-primary' : 'fill-light-surface-container';
+        return (
+          '<svg width="46" height="52" viewBox="0 0 46 52" fill="none" aria-hidden="true" class="shrink-0">' +
+            '<rect x="8" y="3" width="34" height="46" rx="17" class="fill-light-surface-container-lowest stroke-light-outline-variant" stroke-width="1.5"/>' +
+            '<path d="M9.5 19C9.5 10.7157 16.2157 4 24.5 4V22H9.5V19Z" class="' + leftFill + ' transition-colors duration-state-change"/>' +
+            '<path d="M25.5 4C33.7843 4 40.5 10.7157 40.5 19V22H25.5V4Z" class="' + rightFill + ' transition-colors duration-state-change"/>' +
+            '<line x1="25" y1="4" x2="25" y2="22" class="stroke-light-outline-variant" stroke-width="1.5"/>' +
+            '<line x1="9" y1="22" x2="41" y2="22" class="stroke-light-outline-variant" stroke-width="1.5"/>' +
+            '<rect x="22.5" y="10" width="5" height="9" rx="2.5" class="' + middleFill + ' transition-colors duration-state-change"/>' +
+            '<rect x="0" y="23" width="6" height="10" rx="3" class="' + backFill + ' stroke-light-outline-variant transition-colors duration-state-change" stroke-width="1"/>' +
+            '<rect x="0" y="35" width="6" height="10" rx="3" class="' + forwardFill + ' stroke-light-outline-variant transition-colors duration-state-change" stroke-width="1"/>' +
+          '</svg>'
+        );
+      }
+
+      function toggleClasses(on) {
+        return on
+          ? 'border-light-primary bg-light-primary'
+          : 'border-light-outline bg-light-surface-container-low';
+      }
+
+      function thumbClasses(on) {
+        return on
+          ? 'translate-x-5 bg-light-on-primary'
+          : 'translate-x-0.5 bg-light-outline';
+      }
+
+      function escapeHtml(text) {
+        return String(text == null ? '' : text)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function renderEngine() {
+        var on = !!state.active;
+        $('engine-toggle').setAttribute('aria-checked', String(on));
+        $('engine-toggle').className = 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border ' +
+          toggleClasses(on) + ' p-0.5 transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary focus-visible:ring-offset-2';
+        $('engine-thumb').className = 'pointer-events-none inline-block h-4 w-4 ' + thumbClasses(on) +
+          ' rounded-full transition-transform duration-state-change ease-state-change';
+
+        $('status-badge').className = 'inline-flex items-center gap-gutter-xs px-gutter-sm py-gutter-xs rounded-full ' +
+          (on ? 'bg-light-success-container text-light-on-success-container' : 'bg-light-surface-container-high text-light-on-surface-variant');
+        $('status-dot').className = 'w-2 h-2 rounded-full ' + (on ? 'bg-light-success' : 'bg-light-outline');
+        $('status-text').textContent = on ? 'Active' : 'Paused';
+        $('hook-caption').textContent = on ? 'Global mouse hook' : 'Gestures paused';
+
+        var enabled = state.bindings.filter(function (b) { return b.enabled; }).length;
+        if (on) {
+          $('banner-title').textContent = 'Engine active across all Windows apps';
+          $('banner-subtitle').textContent = enabled + ' shortcut' + (enabled === 1 ? '' : 's') + ' enabled · Double-click window ' +
+            state.doubleMs + ' ms · Chord window ' + state.chordMs + ' ms';
+          $('banner-icon-wrap').className = 'w-10 h-10 rounded-sm bg-light-success-container text-light-on-success-container flex items-center justify-center shrink-0';
+          $('banner-icon').textContent = 'check_circle';
+        } else {
+          $('banner-title').textContent = 'Engine paused';
+          $('banner-subtitle').textContent = 'Mouse shortcuts are temporarily disabled until you resume ClickBind.';
+          $('banner-icon-wrap').className = 'w-10 h-10 rounded-sm bg-light-surface-container-high text-light-on-surface-variant flex items-center justify-center shrink-0';
+          $('banner-icon').textContent = 'pause_circle';
+        }
+      }
+
+      function renderList() {
+        var list = $('shortcuts-list');
+        list.innerHTML = '';
+
+        state.bindings.forEach(function (item) {
+          var tMeta = TRIGGER_META[item.trigger] || TRIGGER_META['double-right'];
+          var aMeta = ACTION_META[item.action] || ACTION_META['none'];
+          var dim = (item.enabled && state.active) ? '' : ' opacity-70';
+          var on = !!item.enabled;
+
+          var card = document.createElement('article');
+          card.className = 'p-gutter-lg rounded bg-light-surface-container-lowest border border-light-outline-variant flex flex-col md:flex-row md:items-center justify-between gap-gutter-lg transition-colors duration-state-change ease-state-change' + dim;
+          card.innerHTML =
+            '<div class="flex items-center gap-gutter-lg min-w-0">' +
+              renderMouseSvg(tMeta.highlight) +
+              '<div class="flex flex-col gap-gutter-xs min-w-0">' +
+                '<div class="flex flex-wrap items-center gap-gutter-sm">' +
+                  '<span class="font-headline text-title-md text-light-on-surface">' + tMeta.label + '</span>' +
+                  '<span class="material-symbols-outlined text-[16px] text-light-outline" aria-hidden="true">arrow_forward</span>' +
+                  '<span class="inline-flex items-center gap-gutter-xs font-headline text-title-md text-light-primary">' +
+                    '<span class="material-symbols-outlined text-[18px]" aria-hidden="true">' + aMeta.icon + '</span>' +
+                    aMeta.title +
+                  '</span>' +
+                  (aMeta.keybind ? '<span class="font-mono text-mono-md text-light-on-surface-variant bg-light-surface-container px-gutter-sm py-gutter-xs rounded-sm border border-light-outline-variant">' + aMeta.keybind + '</span>' : '') +
+                '</div>' +
+                '<p class="font-body text-body-md text-light-on-surface-variant">' + aMeta.desc + '</p>' +
+              '</div>' +
+            '</div>' +
+            '<div class="flex items-center justify-end gap-gutter-md shrink-0">' +
+              '<button type="button" data-edit="' + item.trigger + '" class="inline-flex items-center gap-gutter-xs px-gutter-md py-gutter-sm rounded-sm border border-light-outline-variant bg-light-surface-container-lowest text-light-on-surface hover:bg-light-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary transition-colors duration-state-change ease-state-change">' +
+                '<span class="material-symbols-outlined text-[16px]" aria-hidden="true">edit</span>' +
+                '<span class="font-body text-label-lg">Change shortcut</span>' +
+              '</button>' +
+              '<button type="button" role="switch" aria-checked="' + on + '" aria-label="Enable ' + tMeta.label + '" data-toggle="' + item.trigger + '" class="row-toggle relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border ' + toggleClasses(on) + ' p-0.5 transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary focus-visible:ring-offset-2">' +
+                '<span class="pointer-events-none inline-block h-4 w-4 ' + thumbClasses(on) + ' rounded-full transition-transform duration-state-change ease-state-change"></span>' +
+              '</button>' +
+              '<button type="button" data-delete="' + item.trigger + '" aria-label="Delete ' + tMeta.label + ' shortcut" title="Delete this shortcut" class="inline-flex items-center justify-center w-9 h-9 rounded-sm border border-light-error/40 bg-light-error-container/50 text-light-error hover:bg-light-error hover:border-light-error hover:text-light-on-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-error transition-colors duration-state-change ease-state-change">' +
+                '<span class="material-symbols-outlined text-[18px]" aria-hidden="true">delete</span>' +
+              '</button>' +
+            '</div>';
+          list.appendChild(card);
+        });
+
+        if (state.bindings.length === 0) {
+          var empty = document.createElement('article');
+          empty.className = 'p-gutter-lg rounded bg-light-surface-container-lowest border border-light-outline-variant flex items-center gap-gutter-lg text-light-on-surface-variant';
+          empty.innerHTML = '<span class="material-symbols-outlined text-[24px] text-light-outline">mouse</span>' +
+            '<div class="flex flex-col gap-gutter-xs"><span class="font-headline text-title-md text-light-on-surface">No shortcuts bound</span>' +
+            '<span class="font-body text-body-md text-light-on-surface-variant">Use Add shortcut to bind a mouse gesture to an action.</span></div>';
+          list.appendChild(empty);
+        }
+
+        $('nav-count').textContent = String(state.bindings.length);
+
+        Array.prototype.forEach.call(list.querySelectorAll('[data-edit]'), function (btn) {
+          btn.addEventListener('click', function () {
+            var trigger = btn.getAttribute('data-edit');
+            var b = state.bindings.filter(function (x) { return x.trigger === trigger; })[0];
+            openModal(trigger, b ? b.action : 'copy');
+          });
+        });
+
+        Array.prototype.forEach.call(list.querySelectorAll('[data-delete]'), function (btn) {
+          btn.addEventListener('click', function () {
+            var trigger = btn.getAttribute('data-delete');
+            post({ cmd: 'bind', trigger: trigger, action: 'none' });
+            state.bindings = state.bindings.filter(function (x) { return x.trigger !== trigger; });
+            renderList();
+            renderEngine();
+          });
+        });
+
+        Array.prototype.forEach.call(list.querySelectorAll('[data-toggle]'), function (btn) {
+          btn.addEventListener('click', function () {
+            var trigger = btn.getAttribute('data-toggle');
+            var b = state.bindings.filter(function (x) { return x.trigger === trigger; })[0];
+            if (!b) return;
+            var value = !b.enabled;
+            b.enabled = value;
+            post({ cmd: 'toggle', trigger: trigger, enabled: value });
+            renderList();
+            renderEngine();
+          });
+        });
+      }
+
+      function timeAgo(at) {
+        var seconds = Math.max(0, Math.floor((Date.now() - at) / 1000));
+        if (seconds < 10) return 'just now';
+        if (seconds < 60) return seconds + 's ago';
+        if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+        if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+        return new Date(at).toLocaleDateString();
+      }
+
+      function renderClipboard() {
+        var list = $('clipboard-list');
+        list.innerHTML = '';
+        var items = state.clipboard || [];
+
+        if (!items.length) {
+          list.innerHTML = '<div class="p-gutter-xl flex flex-col items-center justify-center gap-gutter-xs text-center">' +
+            '<span class="material-symbols-outlined text-[26px] text-light-outline">content_paste</span>' +
+            '<span class="font-headline text-title-md text-light-on-surface">Nothing copied yet</span>' +
+            '<span class="font-body text-body-md text-light-on-surface-variant">Use a Copy or Cut shortcut and the copied content will appear here.</span></div>';
+          return;
+        }
+
+        items.forEach(function (entry) {
+          var row = document.createElement('div');
+          row.className = 'p-gutter-lg flex items-start justify-between gap-gutter-md';
+          var preview = entry.image ? 'Image copied' : (entry.text || '(empty text)');
+          row.innerHTML =
+            '<div class="flex items-start gap-gutter-md min-w-0">' +
+              '<span class="material-symbols-outlined text-[20px] text-light-primary shrink-0" aria-hidden="true">' + (entry.image ? 'image' : 'content_paste') + '</span>' +
+              '<div class="flex flex-col gap-gutter-xs min-w-0">' +
+                '<span class="font-body text-label-lg text-light-on-surface break-words">' + escapeHtml(preview) + '</span>' +
+                '<span class="font-body text-body-md text-light-on-surface-variant">' + (entry.image ? 'Image' : 'Text') + ' copied</span>' +
+              '</div>' +
+            '</div>' +
+            '<span class="font-mono text-mono-md text-light-on-surface-variant tabular-nums shrink-0">' + timeAgo(entry.at) + '</span>';
+          list.appendChild(row);
+        });
+      }
+
+      function setSwitch(btn, on) {
+        btn.setAttribute('aria-checked', String(on));
+        btn.className = 'pref-switch relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border ' +
+          toggleClasses(on) + ' p-0.5 transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary focus-visible:ring-offset-2';
+        btn.querySelector('span').className = 'pointer-events-none inline-block h-4 w-4 ' + thumbClasses(on) +
+          ' rounded-full transition-transform duration-state-change ease-state-change';
+      }
+
+      function renderPrefs() {
+        $('dblclick-slider').value = state.doubleMs;
+        $('chord-slider').value = state.chordMs;
+        $('dblclick-value').textContent = state.doubleMs + ' ms';
+        $('chord-value').textContent = state.chordMs + ' ms';
+        setSwitch($('startup-switch'), !!state.startWithWindows);
+        setSwitch($('corner-switch'), !!state.hotCorner);
+      }
+
+      function renderWindow() {
+        $('win-max-icon').textContent = state.maximized ? 'filter_none' : 'crop_square';
+        $('win-max').setAttribute('aria-label', state.maximized ? 'Restore window' : 'Maximize window');
+      }
+
+      function render() {
+        renderEngine();
+        renderList();
+        renderClipboard();
+        renderPrefs();
+        renderWindow();
+      }
+
+      function toast(title, message) {
+        var host = $('toast-host');
+        var el = document.createElement('div');
+        el.className = 'pointer-events-auto w-[340px] p-gutter-md rounded-md bg-light-surface-container-lowest border border-light-outline-variant shadow-xl flex items-start gap-gutter-md';
+        el.innerHTML = '<span class="material-symbols-outlined text-[20px] text-light-success">check_circle</span>' +
+          '<div class="flex flex-col gap-gutter-xs min-w-0"><span class="font-headline text-title-md text-light-on-surface">' + escapeHtml(title) + '</span>' +
+          '<span class="font-body text-body-md text-light-on-surface-variant">' + escapeHtml(message) + '</span></div>';
+        host.appendChild(el);
+        setTimeout(function () { el.remove(); }, 3800);
+      }
+
+      var modal = $('shortcut-modal');
+      var triggerSelect = $('trigger-select');
+      var actionSelect = $('action-select');
+
+      function updateTriggerHint() {
+        $('trigger-hint').textContent = TRIGGER_HINT[triggerSelect.value] || '';
+      }
+
+      triggerSelect.addEventListener('change', updateTriggerHint);
+
+      function openModal(trigger, action) {
+        editingTrigger = trigger;
+        $('modal-title').textContent = trigger ? 'Change shortcut' : 'Add shortcut';
+        triggerSelect.value = trigger || firstUnbound();
+        actionSelect.value = action || 'copy';
+        $('gesture-pad-status').textContent = 'Click here to test your mouse button';
+        padPressed = {};
+        clearPadHold();
+        setPadHighlight(null);
+        updateTriggerHint();
+        modal.showModal();
+      }
+
+      function firstUnbound() {
+        var bound = {};
+        state.bindings.forEach(function (b) { bound[b.trigger] = true; });
+        for (var i = 0; i < TRIGGER_ORDER.length; i++) {
+          if (!bound[TRIGGER_ORDER[i]]) return TRIGGER_ORDER[i];
+        }
+        return null;
+      }
+
+      $('add-btn').addEventListener('click', function () {
+        var next = firstUnbound();
+        if (!next) {
+          toast('All triggers are bound', 'Change one of the existing shortcuts instead.');
+          return;
+        }
+        openModal(next, 'copy');
+      });
+
+      $('test-btn').addEventListener('click', function () {
+        var b = state.bindings[0];
+        if (!b) { toast('No shortcuts yet', 'Add a shortcut first, then test it here.'); return; }
+        openModal(b.trigger, b.action);
+      });
+
+      $('modal-close').addEventListener('click', function () { modal.close(); });
+      $('modal-cancel').addEventListener('click', function () { modal.close(); });
+
+      $('modal-save').addEventListener('click', function () {
+        var trigger = triggerSelect.value;
+        var action = actionSelect.value;
+        if (editingTrigger && editingTrigger !== trigger) {
+          post({ cmd: 'bind', trigger: editingTrigger, action: 'none' });
+        }
+        post({ cmd: 'bind', trigger: trigger, action: action });
+        modal.close();
+      });
+
+      $('modal-cancel').addEventListener('keydown', function (e) { if (e.key === 'Escape') modal.close(); });
+
+      function setPadHighlight(highlight) {
+        $('gesture-pad-mouse').innerHTML = renderMouseSvg(highlight);
+      }
+
+      var pad = $('gesture-test-pad');
+      var padPressed = {};
+      var padHoldTimer = null;
+
+      function clearPadHold() {
+        if (padHoldTimer) { clearTimeout(padHoldTimer); padHoldTimer = null; }
+      }
+
+      function padHighlightForPressed() {
+        if (padPressed[0] && padPressed[2]) return 'both';
+        if (padPressed[2]) return 'right';
+        if (padPressed[0]) return 'left';
+        if (padPressed[3]) return 'back';
+        if (padPressed[4]) return 'forward';
+        if (padPressed[1]) return 'middle';
+        return null;
+      }
+
+      var PAD_BUTTON_NAMES = {
+        0: 'Left button',
+        1: 'Middle button',
+        2: 'Right button',
+        3: 'Thumb Back button (button 4)',
+        4: 'Thumb Forward button (button 5)'
+      };
+
+      // The pad only reports gestures: it never selects text, drags, navigates
+      // back/forward or opens a menu.
+      pad.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+      pad.addEventListener('auxclick', function (e) { e.preventDefault(); });
+      pad.addEventListener('dblclick', function (e) { e.preventDefault(); });
+      pad.addEventListener('dragstart', function (e) { e.preventDefault(); });
+      pad.addEventListener('selectstart', function (e) { e.preventDefault(); });
+      pad.addEventListener('mousedown', function (e) {
+        e.preventDefault();
+        padPressed[e.button] = true;
+        setPadHighlight(padHighlightForPressed());
+
+        var status;
+        if (padPressed[0] && padPressed[2]) {
+          status = 'Detected: Left + Right click';
+        } else if ((e.button === 0 || e.button === 2) && e.detail >= 2) {
+          status = 'Detected: Double ' + (e.button === 0 ? 'left' : 'right') + ' click';
+        } else {
+          status = 'Detected: ' + (PAD_BUTTON_NAMES[e.button] || 'Mouse button');
+        }
+        $('gesture-pad-status').textContent = status;
+
+        clearPadHold();
+        if (padPressed[0] && padPressed[2]) {
+          padHoldTimer = setTimeout(function () {
+            padHoldTimer = null;
+            if (!(padPressed[0] && padPressed[2])) return;
+            setPadHighlight('both');
+            $('gesture-pad-status').textContent = 'Detected: Hold left + right buttons';
+          }, 450);
+        } else if (e.button === 0 || e.button === 2) {
+          var heldButton = e.button;
+          padHoldTimer = setTimeout(function () {
+            padHoldTimer = null;
+            if (!padPressed[heldButton]) return;
+            setPadHighlight(padHighlightForPressed());
+            $('gesture-pad-status').textContent = 'Detected: Hold ' + (heldButton === 0 ? 'left' : 'right') + ' button';
+          }, 450);
+        }
+      });
+
+      document.addEventListener('mouseup', function (e) {
+        delete padPressed[e.button];
+        clearPadHold();
+        // Keep the detected button highlighted after release so the user can
+        // still see which mouse button was recognised.
+        if (padPressed[0] || padPressed[1] || padPressed[2] || padPressed[3] || padPressed[4]) {
+          setPadHighlight(padHighlightForPressed());
+        }
+      });
+
+      window.addEventListener('blur', function () {
+        padPressed = {};
+        clearPadHold();
+      });
+
+      $('engine-toggle').addEventListener('click', function () {
+        state.active = !state.active;
+        post({ cmd: 'setActive', value: state.active });
+        renderEngine();
+        renderList();
+      });
+
+      $('reset-btn').addEventListener('click', function () { post({ cmd: 'reset' }); });
+
+      $('dblclick-slider').addEventListener('input', function (e) {
+        state.doubleMs = parseInt(e.target.value, 10);
+        $('dblclick-value').textContent = state.doubleMs + ' ms';
+        post({ cmd: 'timing', doubleMs: state.doubleMs, chordMs: state.chordMs });
+      });
+      $('chord-slider').addEventListener('input', function (e) {
+        state.chordMs = parseInt(e.target.value, 10);
+        $('chord-value').textContent = state.chordMs + ' ms';
+        post({ cmd: 'timing', doubleMs: state.doubleMs, chordMs: state.chordMs });
+      });
+
+      $('startup-switch').addEventListener('click', function () {
+        state.startWithWindows = !state.startWithWindows;
+        setSwitch($('startup-switch'), state.startWithWindows);
+        post({ cmd: 'startup', value: state.startWithWindows });
+      });
+
+      $('corner-switch').addEventListener('click', function () {
+        state.hotCorner = !state.hotCorner;
+        setSwitch($('corner-switch'), state.hotCorner);
+        post({ cmd: 'hotCorner', value: state.hotCorner });
+      });
+
+      Array.prototype.forEach.call(document.querySelectorAll('.nav-tab'), function (tab) {
+        tab.addEventListener('click', function () {
+          var target = tab.getAttribute('data-nav-tab');
+          Array.prototype.forEach.call(document.querySelectorAll('.nav-tab'), function (t) {
+            t.className = (t === tab)
+              ? 'nav-tab flex items-center justify-between gap-gutter-md px-gutter-md py-gutter-sm rounded-sm bg-light-surface-container-lowest border border-light-outline-variant text-light-primary transition-colors duration-state-change ease-state-change'
+              : 'nav-tab flex items-center gap-gutter-md px-gutter-md py-gutter-sm rounded-sm border border-transparent text-light-on-surface-variant hover:bg-light-surface-container-high hover:text-light-on-surface transition-colors duration-state-change ease-state-change';
+          });
+          ['shortcuts', 'timing', 'clipboard'].forEach(function (name) {
+            var panel = $('panel-' + name);
+            if (name === target) {
+              panel.classList.remove('hidden');
+              panel.classList.add('flex');
+            } else {
+              panel.classList.add('hidden');
+              panel.classList.remove('flex');
+            }
+          });
+        });
+      });
+
+      $('win-tray').addEventListener('click', function () { post({ cmd: 'window', action: 'tray' }); });
+      $('win-min').addEventListener('click', function () { post({ cmd: 'window', action: 'minimize' }); });
+      $('win-max').addEventListener('click', function () { post({ cmd: 'window', action: 'maximize' }); });
+      $('win-close').addEventListener('click', function () { post({ cmd: 'window', action: 'close' }); });
+
+      $('titlebar').addEventListener('mousedown', function (e) {
+        if (e.target.closest('button')) return;
+        if (e.button === 0) post({ cmd: 'drag' });
+      });
+      $('titlebar').addEventListener('dblclick', function (e) {
+        if (e.target.closest('button')) return;
+        post({ cmd: 'window', action: 'maximize' });
+      });
+
+      if (bridge) {
+        bridge.addEventListener('message', function (event) {
+          var msg = event.data;
+          if (!msg || !msg.type) return;
+          if (msg.type === 'state' && msg.state) {
+            state = msg.state;
+            render();
+          } else if (msg.type === 'toast') {
+            toast(msg.title, msg.message);
+          }
+        });
+        post({ cmd: 'ready' });
+      }
+
+      setPadHighlight(null);
+      render();
+    })();
+  </script>
+</body>
+</html>

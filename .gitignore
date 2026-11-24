@@ -1,0 +1,18 @@
+# Build output
+dist/
+
+# .NET / Visual Studio artifacts
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Editor and OS files
+Thumbs.db
+desktop.ini
+*.swp
+
+# Local tooling and agent state
+.freebuff/
+.cloud-attachments/
