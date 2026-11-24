@@ -62,15 +62,19 @@ If the app opens a blank window or exits immediately, install the [Microsoft Edg
 
 ## Installation
 
-### Option 1 — Run the prebuilt app
+### Option 1 — Download the installer (recommended)
 
-1. Download or copy the `dist` folder somewhere permanent, for example `C:\Program Files\ClickBind` or `%LOCALAPPDATA%\ClickBind`.
-2. Keep the folder intact: `ClickBind.exe` needs `Microsoft.Web.WebView2.Core.dll`, `Microsoft.Web.WebView2.WinForms.dll`, `WebView2Loader.dll`, `ClickBind.exe.config` and the `ui` folder beside it.
-3. Double-click `ClickBind.exe`. It starts hidden in the system tray.
-4. Open the window from the tray icon (or run `ClickBind.exe --show` for a visible first launch).
-5. Optional: create a desktop shortcut by right-clicking `ClickBind.exe` → **Send to** → **Desktop (create shortcut)**.
+1. Download **[ClickBindSetup.exe](https://github.com/thomas-m-njuguna/ClickBind/releases/latest/download/ClickBindSetup.exe)** — the latest release from the [download page](https://thomas-m-njuguna.github.io/ClickBind/).
+2. Run the setup file. It installs for the current user into `%LOCALAPPDATA%\Programs\ClickBind`, adds a desktop shortcut and a Start menu entry, and starts ClickBind in the tray. No administrator password is needed.
+3. Click the tray icon to open the settings window.
 
-The executable is not code-signed, so Windows SmartScreen may show *"Windows protected your PC"* the first time. Choose **More info** → **Run anyway**.
+To remove it later, use **Uninstall ClickBind** in the Start menu.
+
+The installer is not code-signed, so Windows SmartScreen may show *"Windows protected your PC"* the first time. Choose **More info** → **Run anyway**.
+
+### Option 1b — Portable folder
+
+The built app can also run straight from its folder: keep `ClickBind.exe` beside `Microsoft.Web.WebView2.Core.dll`, `Microsoft.Web.WebView2.WinForms.dll`, `WebView2Loader.dll`, `ClickBind.exe.config` and the `ui` folder, then run `ClickBind.exe` (add `--show` for a visible first launch).
 
 ### Option 2 — Build from source
 
@@ -85,6 +89,10 @@ The executable is not code-signed, so Windows SmartScreen may show *"Windows pro
 3. Run `dist\ClickBind.exe` (add `--show` to open the window immediately).
 
 No Visual Studio installation is required — `build.cmd` uses the C# compiler that ships with .NET Framework.
+
+### Option 3 — Build your own installer
+
+After a successful `build.cmd`, run `build_installer.cmd`. It packages `dist` with IExpress (included in Windows) and writes `build\installer\ClickBindSetup.exe`, the same one-file installer published with each release.
 
 ---
 
