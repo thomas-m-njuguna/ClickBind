@@ -16,3 +16,6 @@ desktop.ini
 # Local tooling and agent state
 .freebuff/
 .cloud-attachments/
+
+# Installer staging
+build/

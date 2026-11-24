@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClickBind — mouse shortcuts for Windows</title>
+<meta name="description" content="ClickBind turns mouse gestures into shortcuts in every Windows app. Double right-click copies, double left-click pastes, and the screen snapshot chord works anywhere.">
+<style>
+  :root {
+    --bg: #0d0d12;
+    --panel: #17161c;
+    --panel-2: #1e1c24;
+    --line: #302d39;
+    --text: #f2eef7;
+    --muted: #b9b2c7;
+    --accent: #a78bfa;
+    --accent-2: #7c5cff;
+    --ok: #4ade80;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(1200px 600px at 50% -200px, #2a1d4d 0%, var(--bg) 60%);
+    color: var(--text);
+    font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .2px; }
+  .logo {
+    width: 30px; height: 30px; border-radius: 9px;
+    background: linear-gradient(140deg, var(--accent), var(--accent-2));
+    display: grid; place-items: center; color: #14101f; font-weight: 800; font-size: 15px;
+  }
+  nav a { color: var(--muted); font-size: 14px; margin-left: 18px; }
+  nav a:hover { color: var(--text); text-decoration: none; }
+
+  .hero { text-align: center; padding: 54px 0 40px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px;
+    color: var(--muted); font-size: 13px; background: rgba(255,255,255,.02);
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
+  h1 { font-size: clamp(34px, 5.4vw, 58px); line-height: 1.05; letter-spacing: -1.5px; margin: 22px 0 14px; }
+  .lede { color: var(--muted); font-size: clamp(16px, 2vw, 19px); max-width: 620px; margin: 0 auto 32px; }
+
+  .download {
+    display: inline-flex; align-items: center; gap: 12px;
+    background: linear-gradient(180deg, #b39dff, var(--accent-2));
+    color: #120c22; font-weight: 700; font-size: 18px;
+    padding: 16px 30px; border-radius: 12px; border: 0;
+    box-shadow: 0 12px 34px rgba(124,92,255,.35), inset 0 1px 0 rgba(255,255,255,.35);
+    cursor: pointer; transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .download:hover { transform: translateY(-1px); text-decoration: none; box-shadow: 0 16px 42px rgba(124,92,255,.45), inset 0 1px 0 rgba(255,255,255,.35); }
+  .download:active { transform: translateY(0); }
+  .download svg { width: 20px; height: 20px; }
+  .meta { color: var(--muted); font-size: 13px; margin-top: 14px; }
+  .meta strong { color: var(--text); font-weight: 600; }
+
+  section { padding: 30px 0; }
+  h2 { font-size: 22px; letter-spacing: -.2px; margin: 0 0 6px; }
+  .sub { color: var(--muted); margin: 0 0 22px; font-size: 15px; }
+
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+  .step, .card {
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--line); border-radius: 14px; padding: 20px;
+  }
+  .num {
+    width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center;
+    background: rgba(167,139,250,.14); color: var(--accent); font-weight: 700; font-size: 13px;
+    border: 1px solid rgba(167,139,250,.25); margin-bottom: 10px;
+  }
+  .step h3, .card h3 { margin: 0 0 4px; font-size: 15px; }
+  .step p, .card p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; overflow: hidden; border-radius: 14px; }
+  th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; background: var(--panel); }
+  tr:last-child td { border-bottom: 0; }
+  td:first-child { color: var(--text); }
+  td:last-child { color: var(--muted); }
+  .tablewrap { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--panel-2); }
+
+  details { border-top: 1px solid var(--line); padding: 14px 0; }
+  details:first-of-type { border-top: 0; }
+  summary { cursor: pointer; font-weight: 600; font-size: 15px; }
+  details p { color: var(--muted); font-size: 14px; margin: 8px 0 0; }
+
+  footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 24px 0 40px; color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  code { background: rgba(255,255,255,.06); padding: 1px 6px; border-radius: 5px; font-size: 12.5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="./"><span class="logo">CB</span> ClickBind</a>
+    <nav>
+      <a href="#install">Install</a>
+      <a href="#gestures">Gestures</a>
+      <a href="https://github.com/thomas-m-njuguna/ClickBind">GitHub</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <span class="pill"><span class="dot"></span> Free · Windows 10 &amp; 11 · no account needed</span>
+      <h1>Mouse shortcuts that<br>work in every app.</h1>
+      <p class="lede">Double right-click to copy, double left-click to paste, hold both buttons for a screen snip. ClickBind runs quietly in the tray and obeys your mouse anywhere on Windows.</p>
+
+      <a class="download" href="https://github.com/thomas-m-njuguna/ClickBind/releases/latest/download/ClickBindSetup.exe">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 21h16"/></svg>
+        Download for Windows
+      </a>
+      <p class="meta">One setup file · <strong>~1.8 MB</strong> · installs for your user, no admin password</p>
+    </section>
+
+    <section id="install">
+      <h2>Install in three clicks</h2>
+      <p class="sub">No zip folders, no DLLs to copy, no config files.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="num">1</div>
+          <h3>Download the setup</h3>
+          <p>Grab <code>ClickBindSetup.exe</code> with the button above.</p>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <h3>Run it</h3>
+          <p>It installs into your user profile and adds desktop and Start menu shortcuts. If SmartScreen appears, choose <strong>More info → Run anyway</strong>.</p>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <h3>Use your mouse</h3>
+          <p>ClickBind starts in the tray. Click the tray icon to change shortcuts, timing or theme.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="gestures">
+      <h2>Starts working immediately</h2>
+      <p class="sub">These are the defaults — every one can be rebound, disabled or deleted.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Gesture</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>Double right-click</td><td>Copy selection</td></tr>
+            <tr><td>Double left-click</td><td>Paste from clipboard</td></tr>
+            <tr><td>Left + right click together</td><td>Screen snapshot</td></tr>
+            <tr><td>Hold left, right or both</td><td>Bind to any action</td></tr>
+            <tr><td>Thumb buttons 4 &amp; 5</td><td>Back / forward shortcuts</td></tr>
+            <tr><td>Top-left or top-right corner</td><td>Task View</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Small app, useful details</h2>
+      <div class="grid">
+        <div class="card"><h3>Clipboard history</h3><p>See what ClickBind copied this session, text or image.</p></div>
+        <div class="card"><h3>Copy confirmation</h3><p>A toast, or a tray balloon when the window is hidden.</p></div>
+        <div class="card"><h3>Light, dark or system</h3><p>Pick a theme once and it is remembered.</p></div>
+        <div class="card"><h3>Starts with Windows</h3><p>Optional, per-user, and easy to switch off.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Questions</h2>
+      <details><summary>Windows says "Windows protected your PC". Is that normal?</summary><p>Yes. The setup is not code-signed yet, so SmartScreen warns on first run. Choose <strong>More info</strong>, then <strong>Run anyway</strong>.</p></details>
+      <details><summary>Does it need administrator rights?</summary><p>No. ClickBind installs under <code>%LOCALAPPDATA%\Programs\ClickBind</code> and only touches your own user settings.</p></details>
+      <details><summary>How do I uninstall it?</summary><p>Use <strong>Uninstall ClickBind</strong> in the Start menu, or delete the installed folder after removing the shortcuts. Settings live in <code>%APPDATA%\ClickBind</code>.</p></details>
+      <details><summary>Is there a portable version?</summary><p>Yes — download or clone the <a href="https://github.com/thomas-m-njuguna/ClickBind">repository</a> and run <code>build.cmd</code>, then launch <code>dist\ClickBind.exe</code>.</p></details>
+    </section>
+  </main>
+
+  <footer>
+    <span>ClickBind by Thomas Mulwa · free for personal and commercial use</span>
+    <span><a href="https://github.com/thomas-m-njuguna/ClickBind">Source code</a></span>
+  </footer>
+</div>
+</body>
+</html>
