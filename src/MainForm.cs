@@ -173,6 +173,30 @@ namespace ClickBind
                     PostState();
                     break;
 
+                case "theme":
+                    string theme = Str(msg, "value");
+                    if (theme == "light" || theme == "dark" || theme == "system")
+                    {
+                        _app.Config.Theme = theme;
+                        _app.ApplySettings(true);
+                    }
+                    PostState();
+                    break;
+
+                case "padRect":
+                {
+                    int pw = Int(msg, "width");
+                    int ph = Int(msg, "height");
+                    if (pw <= 0 || ph <= 0)
+                    {
+                        _app.SetPadBounds(Rectangle.Empty);
+                        break;
+                    }
+                    Point origin = _web.PointToScreen(new Point(Int(msg, "left"), Int(msg, "top")));
+                    _app.SetPadBounds(new Rectangle(origin, new Size(pw, ph)));
+                    break;
+                }
+
                 case "reset":
                     _app.ResetDefaults();
                     PostState();
@@ -299,6 +323,7 @@ namespace ClickBind
             st["chordMs"] = _app.Config.ChordMs;
             st["startWithWindows"] = _app.Config.StartWithWindows;
             st["hotCorner"] = _app.Config.HotCornerEnabled;
+            st["theme"] = _app.Config.Theme ?? "light";
             st["maximized"] = _maximized;
 
             List<object> bindings = new List<object>();

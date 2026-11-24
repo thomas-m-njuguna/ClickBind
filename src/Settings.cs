@@ -36,6 +36,7 @@ namespace ClickBind
         public bool Active;
         public bool StartWithWindows;
         public bool HotCornerEnabled;
+        public string Theme;
         public int DoubleClickMs;
         public int ChordMs;
         public Dictionary<Trigger, ActionId> Bindings;
@@ -46,6 +47,7 @@ namespace ClickBind
             Active = true;
             StartWithWindows = true;
             HotCornerEnabled = true;
+            Theme = "light";
             DoubleClickMs = 280;
             ChordMs = 90;
             Bindings = DefaultBindings();
@@ -109,6 +111,8 @@ namespace ClickBind
                         s.StartWithWindows = val == "true";
                     else if (key == "hot_corner")
                         s.HotCornerEnabled = val == "true";
+                    else if (key == "theme" && (val == "light" || val == "dark" || val == "system"))
+                        s.Theme = val;
                     else if (key == "double_click_ms")
                     {
                         int n;
@@ -164,6 +168,7 @@ namespace ClickBind
                 lines.Add("active=" + (Active ? "true" : "false"));
                 lines.Add("start_with_windows=" + (StartWithWindows ? "true" : "false"));
                 lines.Add("hot_corner=" + (HotCornerEnabled ? "true" : "false"));
+                lines.Add("theme=" + (Theme ?? "light"));
                 lines.Add("double_click_ms=" + DoubleClickMs.ToString());
                 lines.Add("chord_ms=" + ChordMs.ToString());
                 foreach (Trigger t in Labels.Triggers)
@@ -256,7 +261,7 @@ namespace ClickBind
                 case Trigger.MiddleClick: return "Middle wheel click";
                 case Trigger.SideBack: return "Thumb Back button (4)";
                 case Trigger.SideForward: return "Thumb Forward button (5)";
-                case Trigger.HotCorner: return "Top-right corner";
+                case Trigger.HotCorner: return "Top screen corner";
                 case Trigger.HoldLeft: return "Hold left button";
                 case Trigger.HoldRight: return "Hold right button";
                 case Trigger.HoldBoth: return "Hold left + right buttons";

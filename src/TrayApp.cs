@@ -161,6 +161,12 @@ namespace ClickBind
             UpdateTrayText();
         }
 
+        public void SetPadBounds(Rectangle bounds)
+        {
+            if (_hook != null)
+                _hook.PadBounds = bounds;
+        }
+
         public void SetActive(bool active)
         {
             Config.Active = active;

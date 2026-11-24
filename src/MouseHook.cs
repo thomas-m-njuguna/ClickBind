@@ -41,15 +41,17 @@ namespace ClickBind
         private bool _comboLatched;
         private readonly object _sync = new object();
 
-        private int _right;
-        private long _boundsAt;
-        private bool _inCorner;
+        private Rectangle _primaryBounds;
+        private long _boundsAt = -100000;
+        private bool _inLeftCorner;
+        private bool _inRightCorner;
         private long _lastCornerAt;
+        private System.Threading.Timer _cornerTimer;
 
         /// <summary>Raised on a pool thread when a mouse gesture fires.</summary>
         public event Action<Trigger> Triggered;
 
-        /// <summary>Raised on a pool thread when the pointer enters the top-right corner.</summary>
+        /// <summary>Raised on a pool thread when the pointer enters a top screen corner.</summary>
         public event Action HotCorner;
 
         public bool HookFailed { get; private set; }
@@ -59,6 +61,13 @@ namespace ClickBind
         /// settings window so trying a gesture in the test pad does not also run it.
         /// </summary>
         public IntPtr IgnoreWindow { get; set; }
+
+        /// <summary>
+        /// Screen rectangle of the gesture pad inside the settings window. Gestures
+        /// are never global over it, even though other parts of the window allow the
+        /// screen-snapshot gesture through.
+        /// </summary>
+        public Rectangle PadBounds { get; set; }
 
         public MouseHook(RuntimeConfig config)
         {
@@ -78,6 +87,30 @@ namespace ClickBind
             _thread.IsBackground = true;
             _thread.Name = "ClickBindHook";
             _thread.Start();
+
+            // A slow poll backs up the hook for the screen-edge hot corners, which
+            // would otherwise depend on receiving a move exactly at the border.
+            _cornerTimer = new System.Threading.Timer(CornerTick, null, 300, 150);
+        }
+
+        private void CornerTick(object state)
+        {
+            try
+            {
+                RuntimeConfig cfg = _cfg;
+                if (cfg == null || !cfg.Active)
+                    return;
+
+                Native.POINT pt;
+                if (!Native.GetCursorPos(out pt))
+                    return;
+
+                lock (_sync)
+                    HandleMove(pt.X, pt.Y, cfg);
+            }
+            catch
+            {
+            }
         }
 
         private void HookThread()
@@ -130,11 +163,8 @@ namespace ClickBind
             if (cfg == null || !cfg.Active)
                 return false;
 
-            // Clicks inside ClickBind's own window just drive its interface.
-            IntPtr own = IgnoreWindow;
-            if (own != IntPtr.Zero && Native.GetForegroundWindow() == own)
-                return false;
-
+            // The hot corners are checked even while ClickBind is in front, so the
+            // feature keeps working when the window covers the screen edge.
             if (msg == Native.WM_MOUSEMOVE)
             {
                 HandleMove(data.pt.X, data.pt.Y, cfg);
@@ -160,6 +190,19 @@ namespace ClickBind
                     down = false;
                     break;
                 default:
+                    return false;
+            }
+
+            // Buttons inside ClickBind's own window only drive its interface. The
+            // gesture pad is the exception to the exception: the screen-snapshot
+            // shortcut still works everywhere else on screen, including this window.
+            IntPtr own = IgnoreWindow;
+            if (own != IntPtr.Zero && Native.GetForegroundWindow() == own)
+            {
+                Point pt = new Point(data.pt.X, data.pt.Y);
+                if (!PadBounds.IsEmpty && PadBounds.Contains(pt))
+                    return false;
+                if (!MayBeSnapshot(button, cfg))
                     return false;
             }
 
@@ -289,7 +332,8 @@ namespace ClickBind
         {
             if (!cfg.HotCorner)
             {
-                _inCorner = false;
+                _inLeftCorner = false;
+                _inRightCorner = false;
                 return;
             }
 
@@ -299,34 +343,91 @@ namespace ClickBind
                 Screen screen = Screen.PrimaryScreen;
                 if (screen == null)
                     return;
-                _right = screen.Bounds.Right;
+                _primaryBounds = screen.Bounds;
                 _boundsAt = now;
             }
-            if (_right <= 0)
+            if (_primaryBounds.IsEmpty)
                 return;
 
-            bool inside = x >= _right - 3 && x <= _right && y >= 0 && y <= 3;
+            // Both top corners of the primary screen open Task View. The zone is a
+            // few pixels deep so simply reaching the edge is enough.
+            const int Zone = 6;
+            Rectangle b = _primaryBounds;
+            bool left = x >= b.Left && x <= b.Left + Zone && y >= b.Top && y <= b.Top + Zone;
+            bool right = x >= b.Right - Zone - 1 && x <= b.Right && y >= b.Top && y <= b.Top + Zone;
 
-            if (inside)
+            if (left)
             {
-                if (!_inCorner && now - _lastCornerAt >= 1200)
+                if (!_inLeftCorner)
                 {
-                    _inCorner = true;
-                    _lastCornerAt = now;
-                    Action handler = HotCorner;
-                    if (handler != null)
-                    {
-                        ThreadPool.QueueUserWorkItem(delegate
-                        {
-                            try { handler(); }
-                            catch { }
-                        });
-                    }
+                    _inLeftCorner = true;
+                    EnterCorner(now);
                 }
             }
-            else if (x < _right - 40 || y > 40)
+            else if (x > b.Left + Zone + 24 || y > b.Top + Zone + 24)
             {
-                _inCorner = false;
+                _inLeftCorner = false;
+            }
+
+            if (right)
+            {
+                if (!_inRightCorner)
+                {
+                    _inRightCorner = true;
+                    EnterCorner(now);
+                }
+            }
+            else if (x < b.Right - Zone - 24 || y > b.Top + Zone + 24)
+            {
+                _inRightCorner = false;
+            }
+        }
+
+        private void EnterCorner(long now)
+        {
+            if (now - _lastCornerAt < 1200)
+                return;
+
+            _lastCornerAt = now;
+            Action handler = HotCorner;
+            if (handler != null)
+            {
+                ThreadPool.QueueUserWorkItem(delegate
+                {
+                    try { handler(); }
+                    catch { }
+                });
+            }
+        }
+
+        private static bool BoundToSnapshot(RuntimeConfig cfg, Trigger t)
+        {
+            return cfg.IsBound(t) && cfg.Binding(t) == ActionId.Snapshot;
+        }
+
+        /// <summary>
+        /// True when a click with this button could be the start of a gesture bound
+        /// to the screen snapshot. Used to let that one action run inside ClickBind's
+        /// own window without enabling every other gesture there.
+        /// </summary>
+        private static bool MayBeSnapshot(int b, RuntimeConfig cfg)
+        {
+            switch (b)
+            {
+                case BtnLeft:
+                    return BoundToSnapshot(cfg, Trigger.DoubleLeft) || BoundToSnapshot(cfg, Trigger.HoldLeft)
+                        || BoundToSnapshot(cfg, Trigger.LeftRight) || BoundToSnapshot(cfg, Trigger.HoldBoth);
+                case BtnRight:
+                    return BoundToSnapshot(cfg, Trigger.DoubleRight) || BoundToSnapshot(cfg, Trigger.HoldRight)
+                        || BoundToSnapshot(cfg, Trigger.LeftRight) || BoundToSnapshot(cfg, Trigger.HoldBoth);
+                case BtnMiddle:
+                    return BoundToSnapshot(cfg, Trigger.MiddleClick);
+                case BtnBack:
+                    return BoundToSnapshot(cfg, Trigger.SideBack);
+                case BtnForward:
+                    return BoundToSnapshot(cfg, Trigger.SideForward);
+                default:
+                    return false;
             }
         }
 
@@ -476,8 +577,24 @@ namespace ClickBind
             Native.ClickDeferredButton(b);
         }
 
+        private bool OwnWindowHasFocus()
+        {
+            IntPtr own = IgnoreWindow;
+            return own != IntPtr.Zero && Native.GetForegroundWindow() == own;
+        }
+
+        private bool IsSnapshotTrigger(RuntimeConfig cfg, Trigger t)
+        {
+            return cfg != null && cfg.IsBound(t) && cfg.Binding(t) == ActionId.Snapshot;
+        }
+
         private void Fire(Trigger t)
         {
+            // Inside ClickBind's window only the screen-snapshot shortcut is a real
+            // gesture; every other action would fight with the interface itself.
+            if (OwnWindowHasFocus() && !IsSnapshotTrigger(_cfg, t))
+                return;
+
             Action<Trigger> handler = Triggered;
             if (handler != null)
             {
@@ -528,6 +645,11 @@ namespace ClickBind
                         CancelHoldBoth();
                     _pending[i] = false;
                 }
+            }
+            if (_cornerTimer != null)
+            {
+                _cornerTimer.Dispose();
+                _cornerTimer = null;
             }
             _thread = null;
             _threadId = 0;

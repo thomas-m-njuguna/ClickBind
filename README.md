@@ -13,9 +13,11 @@ ClickBind is a small Windows desktop app that turns mouse-button gestures into e
 - **Built-in gesture pad.** Test the mouse buttons inside the app and see exactly which button, chord or hold was detected.
 - **Clipboard history.** The Clipboard page lists everything ClickBind copied or cut this session, with text previews, images and timestamps.
 - **Copy confirmation.** A toast (or tray balloon when the window is hidden) confirms when something was copied.
-- **Hot corner.** Moving the pointer to the top-right corner of the primary screen opens Task View. It is a simple on/off preference, not a binding.
+- **Hot corners.** Moving the pointer into the top-left or top-right corner of the primary screen opens Task View. It is a simple on/off preference, not a binding.
 - **Tray-first.** Runs quietly in the system tray, toggles from its taskbar/tray icon like any normal app, and can start minimized at sign-in.
 - **Tunable timing.** Adjust the double-click window (120–600 ms) and the both-buttons chord window (30–200 ms).
+- **Light, dark and system themes.** The Theme page under Clipboard switches the interface palette and remembers the choice.
+- **Screenshot anywhere.** The screen-snapshot shortcut works across the whole desktop, including the ClickBind window, except over the gesture pad where clicks are only detected.
 
 ### Default shortcuts
 
@@ -24,7 +26,7 @@ ClickBind is a small Windows desktop app that turns mouse-button gestures into e
 | Double right click | Copy selection (`Ctrl + C`) |
 | Double left click | Paste from clipboard (`Ctrl + V`) |
 | Left + right click together | Screen snapshot (`Win + Shift + S`) |
-| Pointer in the top-right corner | Task View (`Win + Tab`) |
+| Pointer in the top-left or top-right corner | Task View (`Win + Tab`) |
 
 Every row also has its own on/off switch, and the whole engine can be paused from the sidebar or the tray menu.
 
@@ -104,7 +106,8 @@ Settings are saved to `%APPDATA%\ClickBind\settings.txt` and survive restarts an
 - Gestures are deliberately ignored while the ClickBind window itself is in the foreground, so testing the pad never triggers your bindings.
 - Disabled triggers pass straight through to the active application.
 - The app must be running for gestures to work. Closing the window hides it to the tray instead of quitting; quit from the tray menu.
-- The top-right hot corner opens Task View. Turn it off under **Timing & sensitivity** if you use that corner for something else.
+- The top-left and top-right hot corners open Task View. Turn them off under **Timing & sensitivity** if you use those corners for something else.
+- Only the screen-snapshot gesture runs inside the ClickBind window; over the gesture test pad no gesture runs at all, so testing never triggers a shortcut.
 
 ---
 
