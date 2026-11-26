@@ -79,7 +79,10 @@ namespace ClickBind
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "ClickBind could not start its embedded browser.\n\n" + ex.Message,
+                MessageBox.Show(this, "ClickBind could not start its embedded browser.\n\n" +
+                    "This usually means the Microsoft Edge WebView2 Runtime is missing or broken.\n" +
+                    "Install it from https://go.microsoft.com/fwlink/p/?LinkId=2124703 and start ClickBind again.\n\n" +
+                    ex.Message,
                     "ClickBind", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

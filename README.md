@@ -72,6 +72,8 @@ To remove it later, use **Uninstall ClickBind** in the Start menu.
 
 The installer is not code-signed, so Windows SmartScreen may show *"Windows protected your PC"* the first time. Choose **More info** → **Run anyway**.
 
+ClickBind needs 64-bit Windows 10 or 11, .NET Framework 4.8 and the Microsoft Edge WebView2 Runtime — Windows 11 already includes both. If either is missing the setup says so and links to the download, and it always writes `%TEMP%\ClickBind-setup.log` so a failed install can be diagnosed.
+
 ### Option 1b — Portable folder
 
 The built app can also run straight from its folder: keep `ClickBind.exe` beside `Microsoft.Web.WebView2.Core.dll`, `Microsoft.Web.WebView2.WinForms.dll`, `WebView2Loader.dll`, `ClickBind.exe.config` and the `ui` folder, then run `ClickBind.exe` (add `--show` for a visible first launch).
