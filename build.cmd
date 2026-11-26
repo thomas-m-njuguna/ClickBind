@@ -7,8 +7,14 @@ if not exist "%CSC%" (
   exit /b 1
 )
 if not exist dist mkdir dist
+if not exist assets\ClickBind.ico (
+  echo Missing assets\ClickBind.ico. Run: powershell -ExecutionPolicy Bypass -File installer\make_icon.ps1
+  exit /b 1
+)
 
 "%CSC%" /nologo /target:winexe /optimize+ /out:dist\ClickBind.exe ^
+  /win32icon:assets\ClickBind.ico ^
+  /resource:assets\ClickBind.ico,ClickBind.ClickBind.ico ^
   /r:System.dll /r:System.Core.dll /r:System.Drawing.dll /r:System.Windows.Forms.dll ^
   /r:System.Web.Extensions.dll ^
   /r:lib\Microsoft.Web.WebView2.Core.dll ^

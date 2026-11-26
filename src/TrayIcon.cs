@@ -1,18 +1,52 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
+using System.Windows.Forms;
 
 namespace ClickBind
 {
     internal static class TrayIcon
     {
+        private const string ResourceName = "ClickBind.ClickBind.ico";
+
         private static Icon _icon;
+        private static Icon _small;
 
         public static Icon Get()
         {
-            if (_icon != null)
-                return _icon;
+            if (_icon == null)
+                _icon = Load(SystemInformation.IconSize) ?? Draw();
+            return _icon;
+        }
 
+        public static Icon GetSmall()
+        {
+            if (_small == null)
+                _small = Load(SystemInformation.SmallIconSize) ?? Get();
+            return _small;
+        }
+
+        private static Icon Load(Size size)
+        {
+            try
+            {
+                using (Stream stream = typeof(TrayIcon).Assembly.GetManifestResourceStream(ResourceName))
+                {
+                    if (stream == null)
+                        return null;
+                    return new Icon(stream, size);
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        // Fallback for builds that do not embed the .ico resource.
+        private static Icon Draw()
+        {
             using (Bitmap bmp = new Bitmap(32, 32))
             {
                 using (Graphics g = Graphics.FromImage(bmp))
@@ -35,9 +69,8 @@ namespace ClickBind
                         g.DrawLine(pen, body.X + 1, body.Y + body.Height * 0.42f, body.Right - 1, body.Y + body.Height * 0.42f);
                     }
                 }
-                _icon = Icon.FromHandle(bmp.GetHicon());
+                return Icon.FromHandle(bmp.GetHicon());
             }
-            return _icon;
         }
 
         private static GraphicsPath Round(Rectangle r, int radius)
