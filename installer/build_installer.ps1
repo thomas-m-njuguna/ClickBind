@@ -65,9 +65,19 @@ $sed | Set-Content -Path $sedPath -Encoding ASCII -Force
 
 Write-Host 'Building ClickBindSetup.exe with IExpress...'
 & "$env:WINDIR\System32\iexpress.exe" /N /Q $sedPath
-# IExpress reports 1 even when the package is produced successfully, so trust
-# the output file rather than its exit code.
-if (-not (Test-Path $setup)) {
+# IExpress returns immediately while the package is still being written, and
+# reports 1 even on success, so wait for the output file instead of trusting
+# its exit code.
+$lastSize = -1
+for ($i = 0; $i -lt 120; $i++) {
+    Start-Sleep -Milliseconds 500
+    if (Test-Path $setup) {
+        $size = (Get-Item $setup).Length
+        if ($size -gt 0 -and $size -eq $lastSize) { break }
+        $lastSize = $size
+    }
+}
+if (-not (Test-Path $setup) -or (Get-Item $setup).Length -eq 0) {
     throw 'IExpress did not produce ClickBindSetup.exe.'
 }
 

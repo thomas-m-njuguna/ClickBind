@@ -218,7 +218,7 @@
         <div class="flex flex-col gap-gutter-md pt-gutter-lg border-t border-light-outline-variant">
           <div class="flex flex-col gap-gutter-xs">
             <span class="font-body text-label-sm text-light-on-surface">Running in system tray</span>
-            <span class="font-body text-body-md text-light-on-surface-variant">Global mode · v1.4.2</span>
+            <span class="font-body text-body-md text-light-on-surface-variant">Global mode · v1.4.3</span>
           </div>
           <button id="reset-btn" type="button" class="inline-flex items-center justify-center gap-gutter-sm px-gutter-md py-gutter-sm rounded-sm bg-light-surface-container-lowest text-light-on-surface border border-light-outline-variant hover:bg-light-surface-container-high transition-colors duration-state-change ease-state-change">
             <span class="material-symbols-outlined text-[16px]" aria-hidden="true">restart_alt</span>
@@ -314,15 +314,25 @@
               </button>
             </label>
 
-            <label class="flex items-center justify-between gap-gutter-xl p-gutter-lg rounded bg-light-surface-container-lowest border border-light-outline-variant cursor-pointer">
-              <div class="flex flex-col gap-gutter-xs">
-                <span class="font-body text-label-lg text-light-on-surface">Top corners open Task View</span>
-                <span id="corner-desc" class="font-body text-body-md text-light-on-surface-variant">Move the pointer into the top-left or top-right corner of your primary screen to show recent windows.</span>
+            <div class="p-gutter-lg rounded bg-light-surface-container-lowest border border-light-outline-variant flex flex-col gap-gutter-md">
+              <div class="flex items-center justify-between gap-gutter-xl">
+                <div class="flex flex-col gap-gutter-xs">
+                  <span class="font-body text-label-lg text-light-on-surface">Top corners open Task View</span>
+                  <span id="corner-desc" class="font-body text-body-md text-light-on-surface-variant">Move the pointer into the top-left or top-right corner of your primary screen to show recent windows.</span>
+                </div>
+                <button id="corner-switch" type="button" role="switch" aria-checked="true" aria-describedby="corner-desc" class="pref-switch relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border border-light-primary bg-light-primary p-0.5 transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary focus-visible:ring-offset-2">
+                  <span class="pointer-events-none inline-block h-4 w-4 translate-x-5 rounded-full bg-light-on-primary transition-transform duration-state-change ease-state-change"></span>
+                </button>
               </div>
-              <button id="corner-switch" type="button" role="switch" aria-checked="true" aria-describedby="corner-desc" class="pref-switch relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border border-light-primary bg-light-primary p-0.5 transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary focus-visible:ring-offset-2">
-                <span class="pointer-events-none inline-block h-4 w-4 translate-x-5 rounded-full bg-light-on-primary transition-transform duration-state-change ease-state-change"></span>
-              </button>
-            </label>
+              <div class="flex items-center justify-between gap-gutter-md border-t border-light-outline-variant pt-gutter-md">
+                <span class="font-body text-body-md text-light-on-surface-variant">Active corner</span>
+                <div class="flex items-center gap-gutter-xs" role="group" aria-label="Active hot corner">
+                  <button type="button" data-corner-side="left" aria-pressed="false" class="corner-side-btn px-gutter-md py-gutter-xs rounded-sm border border-light-outline-variant bg-light-surface-container-lowest font-body text-body-md text-light-on-surface-variant cursor-pointer transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary">Left</button>
+                  <button type="button" data-corner-side="right" aria-pressed="false" class="corner-side-btn px-gutter-md py-gutter-xs rounded-sm border border-light-outline-variant bg-light-surface-container-lowest font-body text-body-md text-light-on-surface-variant cursor-pointer transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary">Right</button>
+                  <button type="button" data-corner-side="both" aria-pressed="true" class="corner-side-btn px-gutter-md py-gutter-xs rounded-sm border border-light-outline-variant bg-light-surface-container-lowest font-body text-body-md text-light-on-surface-variant cursor-pointer transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary">Both</button>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -494,6 +504,7 @@
         chordMs: 90,
         startWithWindows: true,
         hotCorner: true,
+        hotCornerSide: 'both',
         theme: 'light',
         maximized: false,
         bindings: [
@@ -741,6 +752,28 @@
         });
       }
 
+      function renderCorner() {
+        var side = state.hotCornerSide || 'both';
+        $('corner-desc').textContent = !state.hotCorner
+          ? 'Hot corners are off. Turn the switch on to open Task View from a screen corner.'
+          : (side === 'left'
+            ? 'Move the pointer into the top-left corner of your primary screen to show recent windows.'
+            : (side === 'right'
+              ? 'Move the pointer into the top-right corner of your primary screen to show recent windows.'
+              : 'Move the pointer into the top-left or top-right corner of your primary screen to show recent windows.'));
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-corner-side]'), function (btn) {
+          var on = btn.getAttribute('data-corner-side') === side;
+          btn.setAttribute('aria-pressed', String(on));
+          btn.disabled = !state.hotCorner;
+          btn.className = 'corner-side-btn px-gutter-md py-gutter-xs rounded-sm border font-body text-body-md transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary ' +
+            (!state.hotCorner ? 'cursor-not-allowed opacity-50 ' : 'cursor-pointer ') +
+            (on
+              ? 'bg-light-primary text-light-on-primary border-light-primary'
+              : 'bg-light-surface-container-lowest text-light-on-surface-variant border-light-outline-variant hover:bg-light-surface-container-low');
+        });
+      }
+
       function renderPrefs() {
         $('dblclick-slider').value = state.doubleMs;
         $('chord-slider').value = state.chordMs;
@@ -748,6 +781,7 @@
         $('chord-value').textContent = state.chordMs + ' ms';
         setSwitch($('startup-switch'), !!state.startWithWindows);
         setSwitch($('corner-switch'), !!state.hotCorner);
+        renderCorner();
       }
 
       function renderWindow() {
@@ -981,7 +1015,18 @@
       $('corner-switch').addEventListener('click', function () {
         state.hotCorner = !state.hotCorner;
         setSwitch($('corner-switch'), state.hotCorner);
+        renderCorner();
         post({ cmd: 'hotCorner', value: state.hotCorner });
+      });
+
+      Array.prototype.forEach.call(document.querySelectorAll('[data-corner-side]'), function (btn) {
+        btn.addEventListener('click', function () {
+          if (!state.hotCorner)
+            return;
+          state.hotCornerSide = btn.getAttribute('data-corner-side');
+          renderCorner();
+          post({ cmd: 'hotCornerSide', value: state.hotCornerSide });
+        });
       });
 
       Array.prototype.forEach.call(document.querySelectorAll('[data-theme-choice]'), function (btn) {

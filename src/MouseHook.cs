@@ -349,12 +349,17 @@ namespace ClickBind
             if (_primaryBounds.IsEmpty)
                 return;
 
-            // Both top corners of the primary screen open Task View. The zone is a
-            // few pixels deep so simply reaching the edge is enough.
+            // The top corners of the primary screen open Task View, on whichever
+            // side the settings allow. The zone is a few pixels deep so simply
+            // reaching the edge is enough.
             const int Zone = 6;
             Rectangle b = _primaryBounds;
-            bool left = x >= b.Left && x <= b.Left + Zone && y >= b.Top && y <= b.Top + Zone;
-            bool right = x >= b.Right - Zone - 1 && x <= b.Right && y >= b.Top && y <= b.Top + Zone;
+            if (!cfg.HotCornerLeft)
+                _inLeftCorner = false;
+            if (!cfg.HotCornerRight)
+                _inRightCorner = false;
+            bool left = cfg.HotCornerLeft && x >= b.Left && x <= b.Left + Zone && y >= b.Top && y <= b.Top + Zone;
+            bool right = cfg.HotCornerRight && x >= b.Right - Zone - 1 && x <= b.Right && y >= b.Top && y <= b.Top + Zone;
 
             if (left)
             {

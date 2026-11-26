@@ -173,6 +173,16 @@ namespace ClickBind
                     PostState();
                     break;
 
+                case "hotCornerSide":
+                    string cornerSide = Str(msg, "value");
+                    if (cornerSide == "left" || cornerSide == "right" || cornerSide == "both")
+                    {
+                        _app.Config.HotCornerSide = cornerSide;
+                        _app.ApplySettings(true);
+                    }
+                    PostState();
+                    break;
+
                 case "theme":
                     string theme = Str(msg, "value");
                     if (theme == "light" || theme == "dark" || theme == "system")
@@ -323,6 +333,7 @@ namespace ClickBind
             st["chordMs"] = _app.Config.ChordMs;
             st["startWithWindows"] = _app.Config.StartWithWindows;
             st["hotCorner"] = _app.Config.HotCornerEnabled;
+            st["hotCornerSide"] = _app.Config.HotCornerSide ?? "both";
             st["theme"] = _app.Config.Theme ?? "light";
             st["maximized"] = _maximized;
 

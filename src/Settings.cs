@@ -36,6 +36,7 @@ namespace ClickBind
         public bool Active;
         public bool StartWithWindows;
         public bool HotCornerEnabled;
+        public string HotCornerSide;
         public string Theme;
         public int DoubleClickMs;
         public int ChordMs;
@@ -47,6 +48,7 @@ namespace ClickBind
             Active = true;
             StartWithWindows = true;
             HotCornerEnabled = true;
+            HotCornerSide = "both";
             Theme = "light";
             DoubleClickMs = 280;
             ChordMs = 90;
@@ -111,6 +113,8 @@ namespace ClickBind
                         s.StartWithWindows = val == "true";
                     else if (key == "hot_corner")
                         s.HotCornerEnabled = val == "true";
+                    else if (key == "hot_corner_side" && (val == "left" || val == "right" || val == "both"))
+                        s.HotCornerSide = val;
                     else if (key == "theme" && (val == "light" || val == "dark" || val == "system"))
                         s.Theme = val;
                     else if (key == "double_click_ms")
@@ -168,6 +172,7 @@ namespace ClickBind
                 lines.Add("active=" + (Active ? "true" : "false"));
                 lines.Add("start_with_windows=" + (StartWithWindows ? "true" : "false"));
                 lines.Add("hot_corner=" + (HotCornerEnabled ? "true" : "false"));
+                lines.Add("hot_corner_side=" + (HotCornerSide ?? "both"));
                 lines.Add("theme=" + (Theme ?? "light"));
                 lines.Add("double_click_ms=" + DoubleClickMs.ToString());
                 lines.Add("chord_ms=" + ChordMs.ToString());
@@ -198,6 +203,8 @@ namespace ClickBind
         public readonly int DoubleClickMs;
         public readonly int ChordMs;
         public readonly bool HotCorner;
+        public readonly bool HotCornerLeft;
+        public readonly bool HotCornerRight;
 
         public RuntimeConfig(Settings s)
         {
@@ -207,6 +214,9 @@ namespace ClickBind
             DoubleClickMs = s.DoubleClickMs;
             ChordMs = s.ChordMs;
             HotCorner = s.HotCornerEnabled;
+            string cornerSide = s.HotCornerSide ?? "both";
+            HotCornerLeft = cornerSide == "both" || cornerSide == "left";
+            HotCornerRight = cornerSide == "both" || cornerSide == "right";
             foreach (Trigger t in Labels.Triggers)
             {
                 _bindings[(int)t] = s.Binding(t);

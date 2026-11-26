@@ -181,6 +181,7 @@ namespace ClickBind
             Config.ChordMs = 90;
             Config.Active = true;
             Config.HotCornerEnabled = true;
+            Config.HotCornerSide = "both";
             ApplySettings(true);
         }
 
