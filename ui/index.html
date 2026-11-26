@@ -99,19 +99,19 @@
     html.theme-dark .bg-light-surface { background-color: #131316 !important; }
     html.theme-dark .text-light-on-surface { color: #e6e1e5 !important; }
     html.theme-dark .text-light-on-surface-variant { color: #c9c5d0 !important; }
-    html.theme-dark .text-light-primary { color: #cfbcff !important; }
+    html.theme-dark .text-light-primary { color: #86cbff !important; }
     html.theme-dark .bg-light-surface-container-lowest { background-color: #1c1b1f !important; }
     html.theme-dark .bg-light-surface-container-low { background-color: #211f26 !important; }
     html.theme-dark .bg-light-surface-container { background-color: #2b2930 !important; }
     html.theme-dark .bg-light-surface-container-high { background-color: #36343b !important; }
     html.theme-dark .hover\:bg-light-surface-container-low:hover { background-color: #2b2930 !important; }
     html.theme-dark .hover\:bg-light-surface-container-high:hover { background-color: #36343b !important; }
-    html.theme-dark .bg-light-primary { background-color: #6750a4 !important; }
-    html.theme-dark .hover\:bg-light-primary-container:hover { background-color: #4f378b !important; }
-    html.theme-dark .bg-light-primary-container { background-color: #4f378b !important; }
+    html.theme-dark .bg-light-primary { background-color: #0f5c9e !important; }
+    html.theme-dark .hover\:bg-light-primary-container:hover { background-color: #0a4676 !important; }
+    html.theme-dark .bg-light-primary-container { background-color: #0a4676 !important; }
     html.theme-dark .text-light-on-primary { color: #ffffff !important; }
     html.theme-dark .bg-light-on-primary { background-color: #ffffff !important; }
-    html.theme-dark .border-light-primary { border-color: #cfbcff !important; }
+    html.theme-dark .border-light-primary { border-color: #86cbff !important; }
     html.theme-dark .border-light-outline-variant { border-color: #49454f !important; }
     html.theme-dark .border-light-outline { border-color: #79747e !important; }
     html.theme-dark .bg-light-outline { background-color: #79747e !important; }
@@ -128,7 +128,7 @@
     html.theme-dark .hover\:border-light-error:hover { border-color: #ffb4ab !important; }
     html.theme-dark .backdrop\:bg-light-scrim\/40::backdrop { background-color: rgba(0, 0, 0, 0.65) !important; }
     html.theme-dark .text-light-on-background { color: #e6e1e5 !important; }
-    html.theme-dark input[type="range"] { accent-color: #cfbcff; }
+    html.theme-dark input[type="range"] { accent-color: #86cbff; }
     html.theme-dark ::-webkit-scrollbar-thumb { background: #49454f; border-color: #131316; }
     html.theme-dark ::-webkit-scrollbar-thumb:hover { background: #79747e; }
     html.theme-dark #corner-desc,
@@ -198,27 +198,23 @@
               </span>
             </button>
 
-            <button type="button" data-nav-tab="timing" class="nav-tab flex items-center gap-gutter-md px-gutter-md py-gutter-sm rounded-sm border border-transparent text-light-on-surface-variant hover:bg-light-surface-container-high hover:text-light-on-surface transition-colors duration-state-change ease-state-change">
-              <span class="material-symbols-outlined text-[18px]" aria-hidden="true">tune</span>
-              <span class="font-body text-label-lg">Timing &amp; sensitivity</span>
-            </button>
-
             <button type="button" data-nav-tab="clipboard" class="nav-tab flex items-center gap-gutter-md px-gutter-md py-gutter-sm rounded-sm border border-transparent text-light-on-surface-variant hover:bg-light-surface-container-high hover:text-light-on-surface transition-colors duration-state-change ease-state-change">
               <span class="material-symbols-outlined text-[18px]" aria-hidden="true">content_paste</span>
               <span class="font-body text-label-lg">Clipboard</span>
             </button>
 
-            <button type="button" data-nav-tab="theme" class="nav-tab flex items-center gap-gutter-md px-gutter-md py-gutter-sm rounded-sm border border-transparent text-light-on-surface-variant hover:bg-light-surface-container-high hover:text-light-on-surface transition-colors duration-state-change ease-state-change">
-              <span class="material-symbols-outlined text-[18px]" aria-hidden="true">palette</span>
-              <span class="font-body text-label-lg">Theme</span>
+            <button type="button" data-nav-tab="settings" class="nav-tab flex items-center gap-gutter-md px-gutter-md py-gutter-sm rounded-sm border border-transparent text-light-on-surface-variant hover:bg-light-surface-container-high hover:text-light-on-surface transition-colors duration-state-change ease-state-change">
+              <span class="material-symbols-outlined text-[18px]" aria-hidden="true">settings</span>
+              <span class="font-body text-label-lg">Settings</span>
             </button>
+
           </nav>
         </div>
 
         <div class="flex flex-col gap-gutter-md pt-gutter-lg border-t border-light-outline-variant">
           <div class="flex flex-col gap-gutter-xs">
             <span class="font-body text-label-sm text-light-on-surface">Running in system tray</span>
-            <span class="font-body text-body-md text-light-on-surface-variant">Global mode · v1.4.3</span>
+            <span class="font-body text-body-md text-light-on-surface-variant">Global mode · v1.4.4</span>
           </div>
           <button id="reset-btn" type="button" class="inline-flex items-center justify-center gap-gutter-sm px-gutter-md py-gutter-sm rounded-sm bg-light-surface-container-lowest text-light-on-surface border border-light-outline-variant hover:bg-light-surface-container-high transition-colors duration-state-change ease-state-change">
             <span class="material-symbols-outlined text-[16px]" aria-hidden="true">restart_alt</span>
@@ -245,25 +241,6 @@
             </button>
           </div>
 
-          <article id="engine-banner" class="p-gutter-lg rounded bg-light-surface-container-lowest border border-light-outline-variant flex flex-col sm:flex-row sm:items-center justify-between gap-gutter-lg">
-            <div class="flex items-center gap-gutter-md">
-              <div id="banner-icon-wrap" class="w-10 h-10 rounded-sm bg-light-success-container text-light-on-success-container flex items-center justify-center shrink-0">
-                <span id="banner-icon" class="material-symbols-outlined text-[22px]" aria-hidden="true">check_circle</span>
-              </div>
-              <div class="flex flex-col gap-gutter-xs">
-                <h2 id="banner-title" class="font-headline text-title-md text-light-on-surface">Engine active across all Windows apps</h2>
-                <p id="banner-subtitle" class="font-body text-body-md text-light-on-surface-variant tabular-nums">3 shortcuts enabled · Double-click window 280 ms · Chord window 90 ms</p>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-gutter-sm shrink-0">
-              <button id="test-btn" type="button" class="inline-flex items-center justify-center gap-gutter-sm px-gutter-lg py-gutter-sm rounded-sm bg-light-surface-container-lowest text-light-on-surface border border-light-outline-variant hover:bg-light-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary focus-visible:ring-offset-2 transition-colors duration-state-change ease-state-change">
-                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">mouse</span>
-                <span class="font-body text-label-lg">Test gesture</span>
-              </button>
-            </div>
-          </article>
-
           <div class="flex flex-col gap-gutter-md">
             <div class="flex items-center justify-between">
               <h2 class="font-headline text-headline-md text-light-on-surface">Bound shortcuts</h2>
@@ -273,11 +250,11 @@
           </div>
         </section>
 
-        <section id="panel-timing" class="hidden flex-col gap-gutter-xl">
+        <section id="panel-settings" class="hidden flex-col gap-gutter-xl">
           <div class="flex flex-col gap-gutter-xs">
-            <h1 class="font-headline text-headline-lg text-light-on-surface">Timing &amp; sensitivity</h1>
+            <h1 class="font-headline text-headline-lg text-light-on-surface">Settings</h1>
             <p class="font-body text-body-md text-light-on-surface-variant">
-              Fine-tune how quickly ClickBind recognizes double-clicks and dual-button chords.
+              Fine-tune how quickly ClickBind recognizes gestures, then choose how the app looks and starts.
             </p>
           </div>
 
@@ -333,6 +310,19 @@
                 </div>
               </div>
             </div>
+            <div class="p-gutter-lg rounded bg-light-surface-container-lowest border border-light-outline-variant flex flex-col gap-gutter-md">
+              <div class="flex items-center justify-between gap-gutter-xl">
+                <div class="flex flex-col gap-gutter-xs">
+                  <span class="font-body text-label-lg text-light-on-surface">Theme</span>
+                  <span class="font-body text-body-md text-light-on-surface-variant">Choose how ClickBind looks. The choice is saved and applied immediately.</span>
+                </div>
+                <select id="theme-select" aria-label="Theme" class="shrink-0 rounded-sm border border-light-outline-variant bg-light-surface-container-lowest text-light-on-surface font-body text-body-md px-gutter-md py-gutter-sm cursor-pointer focus:border-light-primary focus:ring-light-primary focus-visible:outline-none focus-visible:ring-2">
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                  <option value="system">Use system setting</option>
+                </select>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -340,55 +330,11 @@
           <div class="flex flex-col gap-gutter-xs">
             <h1 class="font-headline text-headline-lg text-light-on-surface">Clipboard</h1>
             <p class="font-body text-body-md text-light-on-surface-variant">
-              Everything ClickBind copied with your mouse shortcuts in this session.
+              Everything ClickBind copied or captured with your mouse shortcuts in this session, including snapshots.
             </p>
           </div>
 
           <div id="clipboard-list" class="rounded bg-light-surface-container-lowest border border-light-outline-variant divide-y divide-light-outline-variant overflow-hidden"></div>
-        </section>
-
-        <section id="panel-theme" class="hidden flex-col gap-gutter-xl">
-          <div class="flex flex-col gap-gutter-xs">
-            <h1 class="font-headline text-headline-lg text-light-on-surface">Theme</h1>
-            <p class="font-body text-body-md text-light-on-surface-variant">
-              Choose how ClickBind looks. The choice is saved and applied immediately.
-            </p>
-          </div>
-
-          <div class="grid grid-cols-1 gap-gutter-md">
-            <button type="button" data-theme-choice="light" aria-pressed="true" class="theme-choice w-full text-left p-gutter-lg rounded border flex items-center justify-between gap-gutter-md bg-light-surface-container-low border-light-primary transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary">
-              <span class="flex items-center gap-gutter-md min-w-0">
-                <span class="material-symbols-outlined text-[22px] text-light-primary" aria-hidden="true">light_mode</span>
-                <span class="flex flex-col gap-gutter-xs min-w-0">
-                  <span class="font-headline text-title-md text-light-on-surface">Light</span>
-                  <span class="font-body text-body-md text-light-on-surface-variant">Bright surfaces with blue accents.</span>
-                </span>
-              </span>
-              <span data-theme-check class="material-symbols-outlined text-[20px] text-light-primary" aria-hidden="true">check_circle</span>
-            </button>
-
-            <button type="button" data-theme-choice="dark" aria-pressed="false" class="theme-choice w-full text-left p-gutter-lg rounded border flex items-center justify-between gap-gutter-md bg-light-surface-container-lowest border-light-outline-variant hover:bg-light-surface-container-low transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary">
-              <span class="flex items-center gap-gutter-md min-w-0">
-                <span class="material-symbols-outlined text-[22px] text-light-primary" aria-hidden="true">dark_mode</span>
-                <span class="flex flex-col gap-gutter-xs min-w-0">
-                  <span class="font-headline text-title-md text-light-on-surface">Dark</span>
-                  <span class="font-body text-body-md text-light-on-surface-variant">Low-light surfaces with soft violet accents.</span>
-                </span>
-              </span>
-              <span data-theme-check class="material-symbols-outlined text-[20px] text-light-primary invisible" aria-hidden="true">check_circle</span>
-            </button>
-
-            <button type="button" data-theme-choice="system" aria-pressed="false" class="theme-choice w-full text-left p-gutter-lg rounded border flex items-center justify-between gap-gutter-md bg-light-surface-container-lowest border-light-outline-variant hover:bg-light-surface-container-low transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary">
-              <span class="flex items-center gap-gutter-md min-w-0">
-                <span class="material-symbols-outlined text-[22px] text-light-primary" aria-hidden="true">contrast</span>
-                <span class="flex flex-col gap-gutter-xs min-w-0">
-                  <span class="font-headline text-title-md text-light-on-surface">Use system setting</span>
-                  <span class="font-body text-body-md text-light-on-surface-variant">Follows the Windows app theme automatically.</span>
-                </span>
-              </span>
-              <span data-theme-check class="material-symbols-outlined text-[20px] text-light-primary invisible" aria-hidden="true">check_circle</span>
-            </button>
-          </div>
         </section>
 
       </main>
@@ -572,20 +518,6 @@
         $('status-dot').className = 'w-2 h-2 rounded-full ' + (on ? 'bg-light-success' : 'bg-light-outline');
         $('status-text').textContent = on ? 'Active' : 'Paused';
         $('hook-caption').textContent = on ? 'Global mouse hook' : 'Gestures paused';
-
-        var enabled = state.bindings.filter(function (b) { return b.enabled; }).length;
-        if (on) {
-          $('banner-title').textContent = 'Engine active across all Windows apps';
-          $('banner-subtitle').textContent = enabled + ' shortcut' + (enabled === 1 ? '' : 's') + ' enabled · Double-click window ' +
-            state.doubleMs + ' ms · Chord window ' + state.chordMs + ' ms';
-          $('banner-icon-wrap').className = 'w-10 h-10 rounded-sm bg-light-success-container text-light-on-success-container flex items-center justify-center shrink-0';
-          $('banner-icon').textContent = 'check_circle';
-        } else {
-          $('banner-title').textContent = 'Engine paused';
-          $('banner-subtitle').textContent = 'Mouse shortcuts are temporarily disabled until you resume ClickBind.';
-          $('banner-icon-wrap').className = 'w-10 h-10 rounded-sm bg-light-surface-container-high text-light-on-surface-variant flex items-center justify-center shrink-0';
-          $('banner-icon').textContent = 'pause_circle';
-        }
       }
 
       function renderList() {
@@ -683,34 +615,88 @@
         return new Date(at).toLocaleDateString();
       }
 
+      var clipboardExpanded = {};
+      var CLIPBOARD_LIMIT = 15;
+      var TEXT_PREVIEW_CHARS = 220;
+
       function renderClipboard() {
         var list = $('clipboard-list');
         list.innerHTML = '';
-        var items = state.clipboard || [];
+        var items = (state.clipboard || []).slice(0, CLIPBOARD_LIMIT);
 
         if (!items.length) {
           list.innerHTML = '<div class="p-gutter-xl flex flex-col items-center justify-center gap-gutter-xs text-center">' +
             '<span class="material-symbols-outlined text-[26px] text-light-outline">content_paste</span>' +
             '<span class="font-headline text-title-md text-light-on-surface">Nothing copied yet</span>' +
-            '<span class="font-body text-body-md text-light-on-surface-variant">Use a Copy or Cut shortcut and the copied content will appear here.</span></div>';
+            '<span class="font-body text-body-md text-light-on-surface-variant">Use a Copy, Cut or Snapshot shortcut and the copied text or screenshot will appear here.</span></div>';
           return;
         }
 
-        items.forEach(function (entry) {
+        items.forEach(function (entry, index) {
           var row = document.createElement('div');
           row.className = 'p-gutter-lg flex items-start justify-between gap-gutter-md';
-          var preview = entry.image ? 'Image copied' : (entry.text || '(empty text)');
-          row.innerHTML =
-            '<div class="flex items-start gap-gutter-md min-w-0">' +
-              '<span class="material-symbols-outlined text-[20px] text-light-primary shrink-0" aria-hidden="true">' + (entry.image ? 'image' : 'content_paste') + '</span>' +
-              '<div class="flex flex-col gap-gutter-xs min-w-0">' +
-                '<span class="font-body text-label-lg text-light-on-surface break-words">' + escapeHtml(preview) + '</span>' +
-                '<span class="font-body text-body-md text-light-on-surface-variant">' + (entry.image ? 'Image' : 'Text') + ' copied</span>' +
-              '</div>' +
-            '</div>' +
-            '<span class="font-mono text-mono-md text-light-on-surface-variant tabular-nums shrink-0">' + timeAgo(entry.at) + '</span>';
+
+          var body = document.createElement('div');
+          body.className = 'flex items-start gap-gutter-md min-w-0 flex-1';
+          body.innerHTML =
+            '<span class="material-symbols-outlined text-[20px] text-light-primary shrink-0" aria-hidden="true">' + (entry.thumb ? 'image' : 'content_paste') + '</span>' +
+            (entry.thumb ? imagePreviewHtml(entry) : textPreviewHtml(entry, index));
+
+          var actions = document.createElement('div');
+          actions.className = 'flex items-center gap-gutter-sm shrink-0';
+          actions.innerHTML =
+            '<span class="font-mono text-mono-md text-light-on-surface-variant tabular-nums">' + timeAgo(entry.at) + '</span>' +
+            '<button type="button" data-copy-index="' + index + '" title="Copy again" aria-label="Copy again" class="flex h-9 w-9 items-center justify-center rounded-sm border border-light-outline-variant bg-light-surface-container-lowest text-light-on-surface-variant cursor-pointer hover:bg-light-surface-container-high hover:text-light-primary transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary">' +
+              '<span class="material-symbols-outlined text-[18px]" aria-hidden="true">content_copy</span>' +
+            '</button>';
+
+          row.appendChild(body);
+          row.appendChild(actions);
           list.appendChild(row);
         });
+
+        Array.prototype.forEach.call(list.querySelectorAll('[data-expand-index]'), function (btn) {
+          btn.addEventListener('click', function () {
+            var i = btn.getAttribute('data-expand-index');
+            clipboardExpanded[i] = !clipboardExpanded[i];
+            renderClipboard();
+          });
+        });
+
+        Array.prototype.forEach.call(list.querySelectorAll('[data-copy-index]'), function (btn) {
+          btn.addEventListener('click', function () {
+            var i = Number(btn.getAttribute('data-copy-index'));
+            var item = items[i];
+            if (!item) return;
+            post({ cmd: 'copyEntry', index: i });
+            toast('Copied to clipboard', item.thumb
+              ? 'The image is back on the Windows clipboard.'
+              : 'The text is back on the Windows clipboard.');
+          });
+        });
+      }
+
+      function imagePreviewHtml(entry) {
+        return '<div class="flex flex-col gap-gutter-xs min-w-0 flex-1">' +
+          '<img src="' + entry.thumb + '" alt="Copied image preview" class="rounded border border-light-outline-variant bg-light-surface-container-low" style="max-width:100%;max-height:180px;width:auto;height:auto;object-fit:contain">' +
+          '<span class="font-body text-body-md text-light-on-surface-variant">Image copied</span>' +
+        '</div>';
+      }
+
+      function textPreviewHtml(entry, index) {
+        var text = entry.text || '(empty text)';
+        var long = text.length > TEXT_PREVIEW_CHARS;
+        var expanded = !!clipboardExpanded[index];
+        var shown = long && !expanded ? text.slice(0, TEXT_PREVIEW_CHARS).replace(/\s+$/, '') + '\u2026' : text;
+
+        var html = '<div class="flex flex-col gap-gutter-xs min-w-0 flex-1">' +
+          '<span class="font-body text-label-lg text-light-on-surface break-words" style="white-space:pre-wrap">' + escapeHtml(shown) + '</span>';
+        if (long) {
+          html += '<button type="button" data-expand-index="' + index + '" class="self-start font-body text-label-md text-light-primary cursor-pointer bg-transparent border-0 p-0 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary">' +
+            (expanded ? 'Show less' : 'Show more') + '</button>';
+        }
+        html += '<span class="font-body text-body-md text-light-on-surface-variant">Text copied</span></div>';
+        return html;
       }
 
       function setSwitch(btn, on) {
@@ -739,17 +725,9 @@
 
       function renderTheme() {
         var choice = state.theme || 'light';
-        Array.prototype.forEach.call(document.querySelectorAll('[data-theme-choice]'), function (btn) {
-          var on = btn.getAttribute('data-theme-choice') === choice;
-          btn.setAttribute('aria-pressed', String(on));
-          btn.className = 'theme-choice w-full text-left p-gutter-lg rounded border flex items-center justify-between gap-gutter-md transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary ' +
-            (on
-              ? 'bg-light-surface-container-low border-light-primary'
-              : 'bg-light-surface-container-lowest border-light-outline-variant hover:bg-light-surface-container-low');
-          var check = btn.querySelector('[data-theme-check]');
-          if (check)
-            check.className = 'material-symbols-outlined text-[20px] text-light-primary' + (on ? '' : ' invisible');
-        });
+        var select = $('theme-select');
+        if (select && select.value !== choice)
+          select.value = choice;
       }
 
       function renderCorner() {
@@ -853,12 +831,6 @@
           return;
         }
         openModal(next, 'copy');
-      });
-
-      $('test-btn').addEventListener('click', function () {
-        var b = state.bindings[0];
-        if (!b) { toast('No shortcuts yet', 'Add a shortcut first, then test it here.'); return; }
-        openModal(b.trigger, b.action);
       });
 
       $('modal-close').addEventListener('click', function () { modal.close(); });
@@ -1029,13 +1001,11 @@
         });
       });
 
-      Array.prototype.forEach.call(document.querySelectorAll('[data-theme-choice]'), function (btn) {
-        btn.addEventListener('click', function () {
-          state.theme = btn.getAttribute('data-theme-choice');
-          applyTheme();
-          renderTheme();
-          post({ cmd: 'theme', value: state.theme });
-        });
+      $('theme-select').addEventListener('change', function (e) {
+        state.theme = e.target.value;
+        applyTheme();
+        renderTheme();
+        post({ cmd: 'theme', value: state.theme });
       });
 
       try {
@@ -1056,7 +1026,7 @@
               ? 'nav-tab flex items-center justify-between gap-gutter-md px-gutter-md py-gutter-sm rounded-sm bg-light-surface-container-lowest border border-light-outline-variant text-light-primary transition-colors duration-state-change ease-state-change'
               : 'nav-tab flex items-center gap-gutter-md px-gutter-md py-gutter-sm rounded-sm border border-transparent text-light-on-surface-variant hover:bg-light-surface-container-high hover:text-light-on-surface transition-colors duration-state-change ease-state-change';
           });
-          ['shortcuts', 'timing', 'clipboard', 'theme'].forEach(function (name) {
+          ['shortcuts', 'settings', 'clipboard'].forEach(function (name) {
             var panel = $('panel-' + name);
             if (name === target) {
               panel.classList.remove('hidden');

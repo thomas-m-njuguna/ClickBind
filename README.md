@@ -11,12 +11,12 @@ ClickBind is a small Windows desktop app that turns mouse-button gestures into e
 - **Global mouse gestures.** Bind double clicks, button chords, the middle wheel click, thumb buttons 4 and 5, and press-and-hold gestures to Windows actions.
 - **Editable bindings.** Rebind any trigger, toggle each shortcut on or off, or delete a shortcut from its card.
 - **Built-in gesture pad.** Test the mouse buttons inside the app and see exactly which button, chord or hold was detected.
-- **Clipboard history.** The Clipboard page lists everything ClickBind copied or cut this session, with text previews, images and timestamps.
+- **Clipboard history.** The Clipboard page lists your 15 most recent copies, cuts and screenshots, with image previews, collapsible long text and a copy button to put any entry back on the clipboard.
 - **Copy confirmation.** A toast (or tray balloon when the window is hidden) confirms when something was copied.
 - **Hot corners.** Moving the pointer into the top-left or top-right corner of the primary screen opens Task View. It is a simple on/off preference, not a binding, and you can choose the left corner, the right corner or both.
 - **Tray-first.** Runs quietly in the system tray, toggles from its taskbar/tray icon like any normal app, and can start minimized at sign-in.
 - **Tunable timing.** Adjust the double-click window (120–600 ms) and the both-buttons chord window (30–200 ms).
-- **Light, dark and system themes.** The Theme page under Clipboard switches the interface palette and remembers the choice.
+- **Light, dark and system themes.** The theme dropdown at the bottom of the Settings page switches the interface palette and remembers the choice.
 - **Screenshot anywhere.** The screen-snapshot shortcut works across the whole desktop, including the ClickBind window, except over the gesture pad where clicks are only detected.
 
 ### Default shortcuts
