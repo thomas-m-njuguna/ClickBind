@@ -102,7 +102,7 @@ After a successful `build.cmd`, run `build_installer.cmd`. It packages `dist` wi
 2. Check the banner reads **Engine active across all Windows apps**.
 3. Use **Add shortcut** to bind a trigger to an action, **Change shortcut** to edit one, the row switch to enable/disable it and the red trash button to delete it.
 4. Use **Test gesture** and click the gesture pad to confirm your mouse buttons are detected.
-5. Enable **Launch ClickBind at Windows startup** on the *Timing & sensitivity* page so gestures are available after every sign-in.
+5. Enable **Launch ClickBind at Windows startup** in the *Settings* page so gestures are available after every sign-in.
 
 Settings are saved to `%APPDATA%\ClickBind\settings.txt` and survive restarts and updates.
 
