@@ -318,5 +318,7 @@ namespace ClickBind
         public DateTime At;
         public string Text;
         public bool IsImage;
+        public byte[] Png;
+        public byte[] ThumbPng;
     }
 }

@@ -149,6 +149,9 @@ namespace ClickBind
         public static extern short GetAsyncKeyState(int vKey);
 
         [DllImport("user32.dll")]
+        public static extern uint GetClipboardSequenceNumber();
+
+        [DllImport("user32.dll")]
         public static extern bool SetProcessDPIAware();
 
         [DllImport("user32.dll")]

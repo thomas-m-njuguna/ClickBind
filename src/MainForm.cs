@@ -214,6 +214,11 @@ namespace ClickBind
 
                 case "snapshot":
                     Actions.SendShortcut(ActionId.Snapshot);
+                    _app.CaptureScreenshot();
+                    break;
+
+                case "copyEntry":
+                    _app.CopyClipboardEntry(Int(msg, "index"));
                     break;
 
                 case "window":
@@ -359,6 +364,8 @@ namespace ClickBind
                 c["text"] = entry.Text ?? string.Empty;
                 c["image"] = entry.IsImage;
                 c["at"] = ToEpochMs(entry.At);
+                if (entry.ThumbPng != null)
+                    c["thumb"] = "data:image/png;base64," + Convert.ToBase64String(entry.ThumbPng);
                 clipboard.Add(c);
             }
             st["clipboard"] = clipboard;

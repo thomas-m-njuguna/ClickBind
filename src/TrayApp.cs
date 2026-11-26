@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -49,7 +52,7 @@ namespace ClickBind
         private void BuildTray()
         {
             _tray = new NotifyIcon();
-            _tray.Icon = TrayIcon.Get();
+            _tray.Icon = TrayIcon.GetSmall();
             _tray.Text = "ClickBind";
             _tray.Visible = true;
 
@@ -72,6 +75,7 @@ namespace ClickBind
             snip.Click += delegate
             {
                 ThreadPool.QueueUserWorkItem(delegate { Actions.SendShortcut(ActionId.Snapshot); });
+                CaptureScreenshot();
             };
 
             ToolStripMenuItem exit = new ToolStripMenuItem("Exit");
@@ -191,6 +195,75 @@ namespace ClickBind
                 return new List<ClipboardEntry>(_clipboard);
         }
 
+        public void CopyClipboardEntry(int index)
+        {
+            List<ClipboardEntry> list = GetClipboard();
+            if (index < 0 || index >= list.Count)
+                return;
+
+            ClipboardEntry entry = list[index];
+            for (int attempt = 0; attempt < 4; attempt++)
+            {
+                try
+                {
+                    if (entry.Png != null)
+                    {
+                        using (MemoryStream ms = new MemoryStream(entry.Png))
+                        using (Image img = Image.FromStream(ms))
+                            Clipboard.SetImage(new Bitmap(img));
+                    }
+                    else if (!string.IsNullOrEmpty(entry.Text))
+                    {
+                        Clipboard.SetText(entry.Text);
+                    }
+                    return;
+                }
+                catch
+                {
+                    Thread.Sleep(60);
+                }
+            }
+        }
+
+        private static bool SameImage(byte[] a, byte[] b)
+        {
+            if (a == null || b == null || a.Length != b.Length)
+                return false;
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (a[i] != b[i])
+                    return false;
+            }
+            return true;
+        }
+
+        private static byte[] ToPng(Image image)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                image.Save(ms, ImageFormat.Png);
+                return ms.ToArray();
+            }
+        }
+
+        private static byte[] ThumbPng(Image image)
+        {
+            const int max = 360;
+            double scale = Math.Min(1.0, Math.Min((double)max / image.Width, (double)max / image.Height));
+            int w = Math.Max(1, (int)Math.Round(image.Width * scale));
+            int h = Math.Max(1, (int)Math.Round(image.Height * scale));
+
+            using (Bitmap thumb = new Bitmap(w, h))
+            {
+                using (Graphics g = Graphics.FromImage(thumb))
+                {
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    g.DrawImage(image, 0, 0, w, h);
+                }
+                return ToPng(thumb);
+            }
+        }
+
         private void CaptureClipboard()
         {
             ThreadPool.QueueUserWorkItem(delegate
@@ -201,16 +274,52 @@ namespace ClickBind
             });
         }
 
+        // A snapshot lands on the clipboard only after the user picks a region in
+        // the snipping overlay, so keep checking for a while before giving up.
+        public void CaptureScreenshot()
+        {
+            uint baseline = Native.GetClipboardSequenceNumber();
+            Thread watcher = new Thread(new ThreadStart(delegate
+            {
+                bool captured = false;
+                for (int i = 0; i < 80; i++)
+                {
+                    Thread.Sleep(250);
+                    // Ignore whatever was on the clipboard before the snapshot started.
+                    if (Native.GetClipboardSequenceNumber() == baseline)
+                        continue;
+                    try
+                    {
+                        captured = Clipboard.ContainsImage();
+                    }
+                    catch
+                    {
+                    }
+                    if (captured)
+                        break;
+                }
+                if (captured)
+                    RunOnUi(ReadClipboard);
+            }));
+            watcher.IsBackground = true;
+            watcher.SetApartmentState(ApartmentState.STA);
+            watcher.Start();
+        }
+
         private void ReadClipboard()
         {
             string text = null;
             bool image = false;
+            Image imageData = null;
             try
             {
                 if (Clipboard.ContainsText())
                     text = Clipboard.GetText();
                 if (string.IsNullOrEmpty(text) && Clipboard.ContainsImage())
-                    image = true;
+                {
+                    imageData = Clipboard.GetImage();
+                    image = imageData != null;
+                }
             }
             catch
             {
@@ -224,18 +333,42 @@ namespace ClickBind
             entry.At = DateTime.Now;
             entry.Text = text;
             entry.IsImage = image;
+            if (imageData != null)
+            {
+                try
+                {
+                    entry.Png = ToPng(imageData);
+                    entry.ThumbPng = ThumbPng(imageData);
+                }
+                catch
+                {
+                }
+                finally
+                {
+                    imageData.Dispose();
+                }
+            }
 
             lock (_clipboard)
             {
                 if (_clipboard.Count > 0)
                 {
                     ClipboardEntry last = _clipboard[0];
-                    if (last.IsImage == entry.IsImage
-                        && string.Equals(last.Text ?? string.Empty, entry.Text ?? string.Empty))
-                        return;
+                    if (last.IsImage == entry.IsImage)
+                    {
+                        if (entry.IsImage)
+                        {
+                            if (SameImage(last.Png, entry.Png))
+                                return;
+                        }
+                        else if (string.Equals(last.Text ?? string.Empty, entry.Text ?? string.Empty))
+                        {
+                            return;
+                        }
+                    }
                 }
                 _clipboard.Insert(0, entry);
-                if (_clipboard.Count > 25)
+                if (_clipboard.Count > 15)
                     _clipboard.RemoveAt(_clipboard.Count - 1);
             }
 
@@ -287,6 +420,8 @@ namespace ClickBind
 
             if (action == ActionId.Copy)
                 CaptureClipboard();
+            else if (action == ActionId.Snapshot)
+                CaptureScreenshot();
         }
 
         private void OnHotCorner()
