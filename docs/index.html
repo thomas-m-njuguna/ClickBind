@@ -98,6 +98,65 @@
   footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 24px 0 40px; color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   code { background: rgba(255,255,255,.06); padding: 1px 6px; border-radius: 5px; font-size: 12.5px; }
 </style>
+<link rel="canonical" href="https://thomas-m-njuguna.github.io/ClickBind/">
+<link rel="alternate" type="text/markdown" href="llms.txt" title="ClickBind for AI assistants">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "ClickBind",
+      "url": "https://thomas-m-njuguna.github.io/ClickBind/",
+      "description": "ClickBind turns mouse gestures into shortcuts in every Windows app: double right-click copies, double left-click pastes, holding both buttons takes a screen snip, and thumb buttons or screen corners can be bound to any action.",
+      "applicationCategory": "UtilitiesApplication",
+      "applicationSubCategory": "Mouse shortcuts and gestures",
+      "operatingSystem": "Windows 10, Windows 11",
+      "softwareVersion": "1.4.4",
+      "downloadUrl": "https://github.com/thomas-m-njuguna/ClickBind/releases/latest/download/ClickBindSetup.exe",
+      "installUrl": "https://github.com/thomas-m-njuguna/ClickBind/releases/latest/download/ClickBindSetup.exe",
+      "fileSize": "1.8MB",
+      "screenshot": "https://thomas-m-njuguna.github.io/ClickBind/",
+      "featureList": [
+        "Double right-click to copy",
+        "Double left-click to paste",
+        "Hold both buttons for a screen snip",
+        "Rebindable mouse button and corner gestures",
+        "Clipboard history of the last 15 items",
+        "Light, dark or system theme"
+      ],
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "author": { "@type": "Person", "name": "Thomas Mulwa" },
+      "license": "https://github.com/thomas-m-njuguna/ClickBind"
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Windows says \"Windows protected your PC\". Is that normal?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. The setup is not code-signed yet, so SmartScreen warns on first run. Choose More info, then Run anyway." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does ClickBind need administrator rights?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. ClickBind installs under %LOCALAPPDATA%\\Programs\\ClickBind and only touches your own user settings." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I uninstall ClickBind?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Use Uninstall ClickBind in the Start menu, or delete the installed folder after removing the shortcuts. Settings live in %APPDATA%\\ClickBind." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is there a portable version of ClickBind?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Download or clone the repository, run build.cmd, then launch dist\\ClickBind.exe." }
+        }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
 <div class="wrap">
