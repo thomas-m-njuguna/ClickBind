@@ -98,7 +98,8 @@ namespace ClickBind
             core.Settings.IsStatusBarEnabled = false;
             core.Settings.AreDevToolsEnabled = false;
             core.Settings.IsZoomControlEnabled = false;
-            core.Settings.AreBrowserAcceleratorKeysEnabled = false;
+            // Keep copy/select-all working so people can copy text out of the window.
+            core.Settings.AreBrowserAcceleratorKeysEnabled = true;
 
             core.WebMessageReceived += OnWebMessage;
             core.NavigationCompleted += delegate
@@ -222,6 +223,21 @@ namespace ClickBind
 
                 case "copyEntry":
                     _app.CopyClipboardEntry(Int(msg, "index"));
+                    break;
+
+                case "deleteEntry":
+                    _app.DeleteClipboardEntry(Int(msg, "index"));
+                    PostState();
+                    break;
+
+                case "keyTarget":
+                    _app.SetKeyTarget(Str(msg, "id"), Str(msg, "target"));
+                    PostState();
+                    break;
+
+                case "pickApp":
+                    _app.PickKeyTarget(Str(msg, "id"));
+                    PostState();
                     break;
 
                 case "window":
@@ -359,6 +375,22 @@ namespace ClickBind
                 bindings.Add(b);
             }
             st["bindings"] = bindings;
+
+            List<object> keyShortcuts = new List<object>();
+            foreach (KeyShortcutDef def in KeyShortcuts.Definitions)
+            {
+                Dictionary<string, object> k = new Dictionary<string, object>();
+                k["id"] = def.Id;
+                k["label"] = def.Label;
+                k["keys"] = new List<string>(def.Keys);
+                k["keysText"] = KeyShortcuts.KeysText(def);
+                k["target"] = _app.KeyTarget(def.Id);
+                k["targetName"] = _app.KeyTargetName(def.Id);
+                k["icon"] = _app.KeyTargetIcon(def.Id);
+                k["available"] = _app.KeyShortcutAvailable(def.Id);
+                keyShortcuts.Add(k);
+            }
+            st["keyShortcuts"] = keyShortcuts;
 
             List<object> clipboard = new List<object>();
             foreach (ClipboardEntry entry in _app.GetClipboard())

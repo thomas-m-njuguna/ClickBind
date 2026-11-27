@@ -19,7 +19,15 @@ namespace ClickBind
         private ToolStripMenuItem _pauseItem;
         private MainForm _form;
         private Control _invoker;
+        private HotkeyManager _hotkeys;
+        private string _hotkeySignature;
         private readonly List<ClipboardEntry> _clipboard = new List<ClipboardEntry>();
+        private ClipboardWatcher _clipboardWatch;
+        private bool _copyPending;
+        private DateTime _copyPendingAt;
+        private bool _snapshotPending;
+        private DateTime _snapshotPendingAt;
+        private long _appCopyToastUntilTicks;
         private long _lastTrayClickAt;
 
         public TrayApp(bool startHidden)
@@ -38,6 +46,14 @@ namespace ClickBind
             _hook.Triggered += OnGesture;
             _hook.HotCorner += OnHotCorner;
             _hook.Start();
+
+            _hotkeys = new HotkeyManager();
+            ApplyKeyShortcuts();
+
+            // The Windows clipboard is the source of truth: every copy, from any
+            // app, is recorded, and a shortcut that copied nothing records nothing.
+            _clipboardWatch = new ClipboardWatcher();
+            _clipboardWatch.Changed += OnClipboardChanged;
 
             BuildTray();
 
@@ -160,9 +176,99 @@ namespace ClickBind
             _runtime = new RuntimeConfig(Config);
             if (_hook != null)
                 _hook.SetConfig(_runtime);
+            ApplyKeyShortcuts();
             if (save)
                 Config.Save();
             UpdateTrayText();
+        }
+
+        // Re-registering on every settings change would be wasteful, so only touch the
+        // global hotkeys when an assigned app actually changed.
+        private void ApplyKeyShortcuts()
+        {
+            if (_hotkeys == null)
+                return;
+
+            System.Text.StringBuilder signature = new System.Text.StringBuilder();
+            foreach (KeyShortcutDef def in KeyShortcuts.Definitions)
+            {
+                string target;
+                Config.KeyTargets.TryGetValue(def.Id, out target);
+                signature.Append(def.Id).Append('=').Append(target ?? string.Empty).Append('|');
+            }
+
+            string next = signature.ToString();
+            if (next == _hotkeySignature)
+                return;
+
+            _hotkeySignature = next;
+            _hotkeys.Apply(Config.KeyTargets, ReportHotkeyError);
+            SyncForm();
+        }
+
+        private void ReportHotkeyError(string message)
+        {
+            RunOnUi(delegate
+            {
+                bool showing = _form != null && !_form.IsDisposed && _form.Visible;
+                if (showing)
+                    _form.PostToast("Shortcut failed", message);
+                else
+                    ShowBalloon("Shortcut failed", message);
+            });
+        }
+
+        public string KeyTarget(string id)
+        {
+            string target;
+            if (Config.KeyTargets != null && Config.KeyTargets.TryGetValue(id, out target) && target != null)
+                return target;
+            return string.Empty;
+        }
+
+        public string KeyTargetName(string id)
+        {
+            return AppPickerDialog.FriendlyName(KeyTarget(id));
+        }
+
+        public string KeyTargetIcon(string id)
+        {
+            return AppPickerDialog.IconDataUrl(KeyTarget(id));
+        }
+
+        public bool KeyShortcutAvailable(string id)
+        {
+            return _hotkeys == null || !_hotkeys.Unavailable.Contains(id);
+        }
+
+        public void SetKeyTarget(string id, string target)
+        {
+            if (KeyShortcuts.Find(id) == null)
+                return;
+
+            if (Config.KeyTargets == null)
+                Config.KeyTargets = new Dictionary<string, string>();
+
+            if (string.IsNullOrEmpty(target) || target.Trim().Length == 0)
+                Config.KeyTargets.Remove(id);
+            else
+                Config.KeyTargets[id] = target.Trim();
+
+            ApplySettings(true);
+            SyncForm();
+        }
+
+        public void PickKeyTarget(string id)
+        {
+            KeyShortcutDef def = KeyShortcuts.Find(id);
+            if (def == null)
+                return;
+
+            using (AppPickerDialog dialog = new AppPickerDialog(KeyShortcuts.KeysText(def)))
+            {
+                if (dialog.ShowDialog() == DialogResult.OK && !string.IsNullOrEmpty(dialog.SelectedPath))
+                    SetKeyTarget(id, dialog.SelectedPath);
+            }
         }
 
         public void SetPadBounds(Rectangle bounds)
@@ -181,6 +287,8 @@ namespace ClickBind
         {
             Config.Bindings = Settings.DefaultBindings();
             Config.Disabled = new HashSet<Trigger>();
+            Config.KeyTargets = new Dictionary<string, string>();
+            _hotkeySignature = null;
             Config.DoubleClickMs = 280;
             Config.ChordMs = 90;
             Config.Active = true;
@@ -202,6 +310,9 @@ namespace ClickBind
                 return;
 
             ClipboardEntry entry = list[index];
+            // Our own write also raises the clipboard event; the interface already
+            // confirms it, so do not add a second notification.
+            _appCopyToastUntilTicks = DateTime.UtcNow.AddSeconds(1).Ticks;
             for (int attempt = 0; attempt < 4; attempt++)
             {
                 try
@@ -264,49 +375,43 @@ namespace ClickBind
             }
         }
 
-        private void CaptureClipboard()
+        private void OnClipboardChanged()
         {
-            ThreadPool.QueueUserWorkItem(delegate
-            {
-                // Give the foreground app a moment to fill the clipboard.
-                Thread.Sleep(180);
-                RunOnUi(ReadClipboard);
-            });
+            DateTime now = DateTime.UtcNow;
+            bool copyNotice = _copyPending && (now - _copyPendingAt).TotalSeconds < 3.0;
+            bool snapshotNotice = _snapshotPending && (now - _snapshotPendingAt).TotalSeconds < 30.0;
+
+            ClipboardEntry entry = ReadClipboard();
+            if (entry == null)
+                return;
+
+            _copyPending = false;
+            if (copyNotice || !snapshotNotice || entry.IsImage)
+                _snapshotPending = false;
+
+            if (!copyNotice && !(snapshotNotice && entry.IsImage))
+                return;
+
+            if (now.Ticks <= _appCopyToastUntilTicks)
+                return;
+
+            bool showing = _form != null && !_form.IsDisposed && _form.Visible;
+            if (showing)
+                _form.PostToast("Copied", "Saved in the ClickBind clipboard.");
+            else
+                ShowBalloon("Copied", "Saved in the ClickBind clipboard.");
         }
 
-        // A snapshot lands on the clipboard only after the user picks a region in
-        // the snipping overlay, so keep checking for a while before giving up.
+        // The snipping overlay writes the image when the user finishes the snip;
+        // the clipboard watcher picks it up, so here we only mark that we wait.
         public void CaptureScreenshot()
         {
-            uint baseline = Native.GetClipboardSequenceNumber();
-            Thread watcher = new Thread(new ThreadStart(delegate
-            {
-                bool captured = false;
-                for (int i = 0; i < 80; i++)
-                {
-                    Thread.Sleep(250);
-                    // Ignore whatever was on the clipboard before the snapshot started.
-                    if (Native.GetClipboardSequenceNumber() == baseline)
-                        continue;
-                    try
-                    {
-                        captured = Clipboard.ContainsImage();
-                    }
-                    catch
-                    {
-                    }
-                    if (captured)
-                        break;
-                }
-                if (captured)
-                    RunOnUi(ReadClipboard);
-            }));
-            watcher.IsBackground = true;
-            watcher.SetApartmentState(ApartmentState.STA);
-            watcher.Start();
+            _snapshotPending = true;
+            _snapshotPendingAt = DateTime.UtcNow;
         }
 
-        private void ReadClipboard()
+        /// <summary>Reads what is on the Windows clipboard, or null when it holds nothing usable.</summary>
+        private ClipboardEntry ReadClipboard()
         {
             string text = null;
             bool image = false;
@@ -320,14 +425,28 @@ namespace ClickBind
                     imageData = Clipboard.GetImage();
                     image = imageData != null;
                 }
+                if (string.IsNullOrEmpty(text) && !image && Clipboard.ContainsFileDropList())
+                {
+                    System.Collections.Specialized.StringCollection files = Clipboard.GetFileDropList();
+                    List<string> paths = new List<string>();
+                    foreach (string file in files)
+                    {
+                        if (!string.IsNullOrEmpty(file))
+                            paths.Add(file);
+                    }
+                    if (paths.Count > 0)
+                        text = string.Join(Environment.NewLine, paths.ToArray());
+                }
             }
             catch
             {
-                return;
+                if (imageData != null)
+                    imageData.Dispose();
+                return null;
             }
 
             if (string.IsNullOrEmpty(text) && !image)
-                return;
+                return null;
 
             ClipboardEntry entry = new ClipboardEntry();
             entry.At = DateTime.Now;
@@ -351,46 +470,41 @@ namespace ClickBind
 
             lock (_clipboard)
             {
+                bool duplicate = false;
                 if (_clipboard.Count > 0)
                 {
                     ClipboardEntry last = _clipboard[0];
                     if (last.IsImage == entry.IsImage)
                     {
                         if (entry.IsImage)
-                        {
-                            if (SameImage(last.Png, entry.Png))
-                                return;
-                        }
-                        else if (string.Equals(last.Text ?? string.Empty, entry.Text ?? string.Empty))
-                        {
-                            return;
-                        }
+                            duplicate = SameImage(last.Png, entry.Png);
+                        else
+                            duplicate = string.Equals(last.Text ?? string.Empty, entry.Text ?? string.Empty);
                     }
                 }
-                _clipboard.Insert(0, entry);
-                if (_clipboard.Count > 15)
-                    _clipboard.RemoveAt(_clipboard.Count - 1);
-            }
 
-            string preview = image ? "Image copied to the Windows clipboard." : PreviewText(text);
-            bool showing = _form != null && !_form.IsDisposed && _form.Visible;
-            if (showing)
-                _form.PostToast("Copied to clipboard", preview);
-            else
-                ShowBalloon("Copied to clipboard", preview);
+                // Entries stay until the user deletes them or Windows restarts.
+                if (!duplicate)
+                    _clipboard.Insert(0, entry);
+            }
 
             if (_form != null && !_form.IsDisposed)
                 _form.OnActivityChanged();
+
+            return entry;
         }
 
-        private static string PreviewText(string text)
+        public void DeleteClipboardEntry(int index)
         {
-            if (string.IsNullOrEmpty(text))
-                return string.Empty;
-            string s = text.Replace("\r", " ").Replace("\n", " ").Trim();
-            if (s.Length > 90)
-                s = s.Substring(0, 90).TrimEnd() + "...";
-            return s;
+            lock (_clipboard)
+            {
+                if (index < 0 || index >= _clipboard.Count)
+                    return;
+                _clipboard.RemoveAt(index);
+            }
+
+            if (_form != null && !_form.IsDisposed)
+                _form.OnActivityChanged();
         }
 
         private void ShowBalloon(string title, string message)
@@ -416,11 +530,21 @@ namespace ClickBind
                 return;
 
             ActionId action = cfg.Binding(t);
-            Actions.SendShortcut(action);
 
             if (action == ActionId.Copy)
-                CaptureClipboard();
+            {
+                _copyPending = true;
+                _copyPendingAt = DateTime.UtcNow;
+            }
             else if (action == ActionId.Snapshot)
+            {
+                _snapshotPending = true;
+                _snapshotPendingAt = DateTime.UtcNow;
+            }
+
+            Actions.SendShortcut(action);
+
+            if (action == ActionId.Snapshot)
                 CaptureScreenshot();
         }
 
@@ -473,6 +597,16 @@ namespace ClickBind
                 _hook.Dispose();
                 _hook = null;
             }
+            if (_hotkeys != null)
+            {
+                _hotkeys.Dispose();
+                _hotkeys = null;
+            }
+            if (_clipboardWatch != null)
+            {
+                _clipboardWatch.Dispose();
+                _clipboardWatch = null;
+            }
             if (_tray != null)
             {
                 _tray.Visible = false;
@@ -487,6 +621,8 @@ namespace ClickBind
             if (disposing)
             {
                 if (_hook != null) _hook.Dispose();
+                if (_hotkeys != null) _hotkeys.Dispose();
+                if (_clipboardWatch != null) _clipboardWatch.Dispose();
                 if (_tray != null) _tray.Dispose();
                 if (_form != null && !_form.IsDisposed) _form.Dispose();
                 if (_invoker != null) _invoker.Dispose();

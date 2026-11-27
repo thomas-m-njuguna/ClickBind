@@ -42,6 +42,8 @@ namespace ClickBind
         public int ChordMs;
         public Dictionary<Trigger, ActionId> Bindings;
         public HashSet<Trigger> Disabled;
+        /// <summary>Keyboard shortcut slot id -> app, file or command it opens.</summary>
+        public Dictionary<string, string> KeyTargets;
 
         public Settings()
         {
@@ -54,6 +56,7 @@ namespace ClickBind
             ChordMs = 90;
             Bindings = DefaultBindings();
             Disabled = new HashSet<Trigger>();
+            KeyTargets = new Dictionary<string, string>();
         }
 
         public static Dictionary<Trigger, ActionId> DefaultBindings()
@@ -140,6 +143,12 @@ namespace ClickBind
                         {
                         }
                     }
+                    else if (key.StartsWith("key.") && val.Length > 0)
+                    {
+                        string slot = key.Substring(4).Trim();
+                        if (slot.Length > 0)
+                            s.KeyTargets[slot] = val;
+                    }
                     else if (key.StartsWith("off."))
                     {
                         try
@@ -181,6 +190,13 @@ namespace ClickBind
                     lines.Add("bind." + t.ToString() + "=" + Binding(t).ToString());
                     if (Disabled != null && Disabled.Contains(t))
                         lines.Add("off." + t.ToString() + "=true");
+                }
+
+                foreach (KeyShortcutDef def in KeyShortcuts.Definitions)
+                {
+                    string target;
+                    if (KeyTargets != null && KeyTargets.TryGetValue(def.Id, out target) && !string.IsNullOrEmpty(target))
+                        lines.Add("key." + def.Id + "=" + target);
                 }
 
                 File.WriteAllLines(path, lines.ToArray());

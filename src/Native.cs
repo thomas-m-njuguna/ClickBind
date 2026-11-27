@@ -24,6 +24,12 @@ namespace ClickBind
         public const uint VK_SHIFT = 0x10;
         public const uint VK_LWIN = 0x5B;
         public const int WM_QUIT = 0x0012;
+        public const int WM_HOTKEY = 0x0312;
+
+        public const uint MOD_ALT = 0x0001;
+        public const uint MOD_CONTROL = 0x0002;
+        public const uint MOD_SHIFT = 0x0004;
+        public const uint MOD_NOREPEAT = 0x4000;
         public const int WM_NCLBUTTONDOWN = 0x00A1;
         public const int HTCAPTION = 2;
 
@@ -148,8 +154,20 @@ namespace ClickBind
         [DllImport("user32.dll")]
         public static extern short GetAsyncKeyState(int vKey);
 
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
         [DllImport("user32.dll")]
         public static extern uint GetClipboardSequenceNumber();
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool AddClipboardFormatListener(IntPtr hWnd);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool RemoveClipboardFormatListener(IntPtr hWnd);
 
         [DllImport("user32.dll")]
         public static extern bool SetProcessDPIAware();

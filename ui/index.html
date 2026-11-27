@@ -135,7 +135,7 @@
     html.theme-dark #startup-desc { color: #c9c5d0 !important; }
   </style>
 </head>
-<body class="bg-light-surface text-light-on-surface font-body antialiased overflow-hidden no-select">
+<body class="bg-light-surface text-light-on-surface font-body antialiased overflow-hidden">
 
   <div class="h-screen flex flex-col bg-light-surface">
 
@@ -229,8 +229,8 @@
         <section id="panel-shortcuts" class="flex flex-col gap-gutter-xl">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-gutter-lg">
             <div class="flex flex-col gap-gutter-xs">
-              <h1 class="font-headline text-headline-lg text-light-on-surface text-balance">Global mouse shortcuts</h1>
-              <p class="font-body text-body-md text-light-on-surface-variant text-pretty">
+              <h1 id="shortcuts-title" class="font-headline text-headline-lg text-light-on-surface text-balance">Global mouse shortcuts</h1>
+              <p id="shortcuts-subtitle" class="font-body text-body-md text-light-on-surface-variant text-pretty">
                 Perform these mouse button gestures anywhere in Windows to trigger instant actions.
               </p>
             </div>
@@ -241,12 +241,36 @@
             </button>
           </div>
 
-          <div class="flex flex-col gap-gutter-md">
+          <!-- Browser-style tab strip: mouse gestures or keyboard shortcuts -->
+          <div class="flex justify-end">
+            <div role="tablist" aria-label="Shortcut type" class="flex items-end gap-1">
+              <button type="button" role="tab" data-shortcut-tab="mouse" aria-selected="true" class="shortcut-tab flex items-center gap-gutter-sm px-gutter-lg py-gutter-sm rounded-t-md border border-light-outline-variant bg-light-surface-container-lowest font-body text-label-lg text-light-primary transition-colors duration-state-change ease-state-change">
+                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">mouse</span>
+                <span>Mouse</span>
+              </button>
+              <button type="button" role="tab" data-shortcut-tab="keyboard" aria-selected="false" class="shortcut-tab flex items-center gap-gutter-sm px-gutter-lg py-gutter-sm rounded-t-md border border-transparent font-body text-label-lg text-light-on-surface-variant hover:bg-light-surface-container-high transition-colors duration-state-change ease-state-change">
+                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">keyboard</span>
+                <span>Keyboard</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="pane-mouse" class="flex flex-col gap-gutter-md">
             <div class="flex items-center justify-between">
               <h2 class="font-headline text-headline-md text-light-on-surface">Bound shortcuts</h2>
               <span class="font-body text-body-md text-light-on-surface-variant">Change a shortcut to rebind it, or delete the ones you do not need</span>
             </div>
             <div id="shortcuts-list" class="grid grid-cols-1 gap-gutter-md"></div>
+          </div>
+
+          <div id="pane-keyboard" class="hidden flex-col gap-gutter-md">
+            <div class="flex flex-col gap-gutter-xs">
+              <h2 class="font-headline text-headline-md text-light-on-surface">Keyboard shortcuts</h2>
+              <p class="font-body text-body-md text-light-on-surface-variant">
+                Every shortcut uses Alt + Shift with a letter, a combination Windows, browsers and most apps leave free. Assign the app, file or command you want each one to open.
+              </p>
+            </div>
+            <div id="key-shortcuts-list" class="grid grid-cols-1 gap-gutter-md"></div>
           </div>
         </section>
 
@@ -458,6 +482,14 @@
           { trigger: 'double-left', action: 'paste', enabled: true },
           { trigger: 'both-buttons', action: 'snapshot', enabled: true }
         ],
+        keyShortcuts: [
+          { id: 'slot-1', label: 'Shortcut 1', keys: ['Alt', 'Shift', 'N'], target: '', available: true },
+          { id: 'slot-2', label: 'Shortcut 2', keys: ['Alt', 'Shift', 'C'], target: '', available: true },
+          { id: 'slot-3', label: 'Shortcut 3', keys: ['Alt', 'Shift', 'E'], target: '', available: true },
+          { id: 'slot-4', label: 'Shortcut 4', keys: ['Alt', 'Shift', 'B'], target: '', available: true },
+          { id: 'slot-5', label: 'Shortcut 5', keys: ['Alt', 'Shift', 'T'], target: '', available: true },
+          { id: 'slot-6', label: 'Shortcut 6', keys: ['Alt', 'Shift', 'S'], target: '', available: true }
+        ],
         clipboard: []
       };
 
@@ -616,19 +648,18 @@
       }
 
       var clipboardExpanded = {};
-      var CLIPBOARD_LIMIT = 15;
       var TEXT_PREVIEW_CHARS = 220;
 
       function renderClipboard() {
         var list = $('clipboard-list');
         list.innerHTML = '';
-        var items = (state.clipboard || []).slice(0, CLIPBOARD_LIMIT);
+        var items = state.clipboard || [];
 
         if (!items.length) {
           list.innerHTML = '<div class="p-gutter-xl flex flex-col items-center justify-center gap-gutter-xs text-center">' +
             '<span class="material-symbols-outlined text-[26px] text-light-outline">content_paste</span>' +
             '<span class="font-headline text-title-md text-light-on-surface">Nothing copied yet</span>' +
-            '<span class="font-body text-body-md text-light-on-surface-variant">Use a Copy, Cut or Snapshot shortcut and the copied text or screenshot will appear here.</span></div>';
+            '<span class="font-body text-body-md text-light-on-surface-variant">Anything you copy in Windows appears here, until you delete it or restart the PC.</span></div>';
           return;
         }
 
@@ -648,6 +679,9 @@
             '<span class="font-mono text-mono-md text-light-on-surface-variant tabular-nums">' + timeAgo(entry.at) + '</span>' +
             '<button type="button" data-copy-index="' + index + '" title="Copy again" aria-label="Copy again" class="flex h-9 w-9 items-center justify-center rounded-sm border border-light-outline-variant bg-light-surface-container-lowest text-light-on-surface-variant cursor-pointer hover:bg-light-surface-container-high hover:text-light-primary transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary">' +
               '<span class="material-symbols-outlined text-[18px]" aria-hidden="true">content_copy</span>' +
+            '</button>' +
+            '<button type="button" data-delete-index="' + index + '" title="Delete from clipboard" aria-label="Delete from clipboard" class="flex h-9 w-9 items-center justify-center rounded-sm border border-light-error/40 bg-light-error-container/50 text-light-error cursor-pointer hover:bg-light-error hover:border-light-error hover:text-light-on-error transition-colors duration-state-change ease-state-change focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-error">' +
+              '<span class="material-symbols-outlined text-[18px]" aria-hidden="true">delete</span>' +
             '</button>';
 
           row.appendChild(body);
@@ -669,9 +703,14 @@
             var item = items[i];
             if (!item) return;
             post({ cmd: 'copyEntry', index: i });
-            toast('Copied to clipboard', item.thumb
-              ? 'The image is back on the Windows clipboard.'
-              : 'The text is back on the Windows clipboard.');
+            toast('Copied', 'On the Windows clipboard.');
+          });
+        });
+
+        Array.prototype.forEach.call(list.querySelectorAll('[data-delete-index]'), function (btn) {
+          btn.addEventListener('click', function () {
+            var i = Number(btn.getAttribute('data-delete-index'));
+            post({ cmd: 'deleteEntry', index: i });
           });
         });
       }
@@ -767,9 +806,116 @@
         $('win-max').setAttribute('aria-label', state.maximized ? 'Restore window' : 'Maximize window');
       }
 
+      var shortcutsTab = 'mouse';
+
+      function keyCapsHtml(keys) {
+        var html = '';
+        (keys || []).forEach(function (key, i) {
+          if (i > 0)
+            html += '<span class="font-body text-[11px] text-light-on-surface-variant">+</span>';
+          html += '<kbd class="font-mono text-mono-md px-gutter-sm py-gutter-xs rounded-sm border border-light-outline-variant bg-light-surface-container text-light-on-surface">' + escapeHtml(key) + '</kbd>';
+        });
+        return '<div class="flex items-center gap-1 shrink-0">' + html + '</div>';
+      }
+
+      function renderKeyShortcuts() {
+        var list = $('key-shortcuts-list');
+        if (!list) return;
+        list.innerHTML = '';
+
+        // Assigned shortcuts stay on top; the free slots follow underneath.
+        (state.keyShortcuts || []).slice().sort(function (a, b) {
+          return (a.target ? 0 : 1) - (b.target ? 0 : 1);
+        }).forEach(function (item) {
+          var assigned = !!(item.target && item.target.length);
+          var blocked = assigned && item.available === false;
+          var appName = item.targetName || item.target || '';
+          var status = blocked
+            ? 'This combination is used by another app. Close that app to use it here.'
+            : (assigned ? 'Press these keys anywhere in Windows to open ' + appName + '.' : 'Choose an app to switch this shortcut on.');
+
+          var card = document.createElement('article');
+          card.className = 'p-gutter-lg rounded bg-light-surface-container-lowest border border-light-outline-variant flex flex-col md:flex-row md:items-center justify-between gap-gutter-lg';
+          card.innerHTML =
+            '<div class="flex items-center gap-gutter-lg min-w-0">' +
+              '<span class="shrink-0 flex h-9 w-9 items-center justify-center rounded-sm border border-light-outline-variant bg-light-surface-container overflow-hidden" aria-hidden="true">' +
+                (item.icon
+                  ? '<img src="' + escapeHtml(item.icon) + '" alt="" class="h-6 w-6 object-contain">'
+                  : '<span class="material-symbols-outlined text-[18px] text-light-outline">apps</span>') +
+              '</span>' +
+              keyCapsHtml(item.keys) +
+              '<div class="flex flex-col gap-gutter-xs min-w-0">' +
+                '<span class="font-headline text-title-md text-light-on-surface">' + escapeHtml(item.label || 'Shortcut') + '</span>' +
+                '<span class="font-body text-body-md ' + (blocked ? 'text-light-error' : 'text-light-on-surface-variant') + '">' + escapeHtml(status) + '</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="flex items-center gap-gutter-sm shrink-0">' +
+              '<button type="button" data-key-browse="' + item.id + '" aria-label="' + escapeHtml(assigned ? 'Change the app for this shortcut' : 'Choose an app for this shortcut') + '" title="' + escapeHtml(assigned ? item.target : 'Choose an app from the list of installed apps') + '" class="inline-flex items-center gap-gutter-sm max-w-[280px] px-gutter-md py-gutter-sm rounded-sm border border-light-outline-variant bg-light-surface-container-lowest text-light-on-surface hover:bg-light-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary transition-colors duration-state-change ease-state-change">' +
+                '<span class="material-symbols-outlined text-[18px] text-light-on-surface-variant" aria-hidden="true">apps</span>' +
+                '<span class="font-body text-label-lg truncate ' + (assigned ? '' : 'text-light-on-surface-variant') + '">' + escapeHtml(assigned ? appName : 'Choose app') + '</span>' +
+                '<span class="material-symbols-outlined text-[18px] text-light-on-surface-variant" aria-hidden="true">expand_more</span>' +
+              '</button>' +
+              (assigned
+                ? '<button type="button" data-key-clear="' + item.id + '" aria-label="Clear this shortcut" title="Clear this shortcut" class="inline-flex items-center justify-center w-9 h-9 rounded-sm border border-light-outline-variant bg-light-surface-container-lowest text-light-on-surface-variant hover:bg-light-surface-container-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary transition-colors duration-state-change ease-state-change">' +
+                    '<span class="material-symbols-outlined text-[18px]" aria-hidden="true">backspace</span>' +
+                  '</button>'
+                : '') +
+            '</div>';
+          list.appendChild(card);
+        });
+
+        Array.prototype.forEach.call(list.querySelectorAll('[data-key-browse]'), function (btn) {
+          btn.addEventListener('click', function () {
+            post({ cmd: 'pickApp', id: btn.getAttribute('data-key-browse') });
+          });
+        });
+
+        Array.prototype.forEach.call(list.querySelectorAll('[data-key-clear]'), function (btn) {
+          btn.addEventListener('click', function () {
+            post({ cmd: 'keyTarget', id: btn.getAttribute('data-key-clear'), target: '' });
+          });
+        });
+      }
+
+      function setPane(id, visible) {
+        var el = $(id);
+        if (!el) return;
+        el.classList.toggle('hidden', !visible);
+        el.classList.toggle('flex', visible);
+      }
+
+      function renderShortcutsTab() {
+        var keyboard = shortcutsTab === 'keyboard';
+        $('shortcuts-title').textContent = keyboard ? 'Keyboard shortcuts' : 'Global mouse shortcuts';
+        $('shortcuts-subtitle').textContent = keyboard
+          ? 'Launch the apps you choose with a shortcut that works anywhere in Windows.'
+          : 'Perform these mouse button gestures anywhere in Windows to trigger instant actions.';
+        $('add-btn').classList.toggle('hidden', keyboard);
+        setPane('pane-mouse', !keyboard);
+        setPane('pane-keyboard', keyboard);
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-shortcut-tab]'), function (tab) {
+          var on = tab.getAttribute('data-shortcut-tab') === shortcutsTab;
+          tab.setAttribute('aria-selected', String(on));
+          tab.className = 'shortcut-tab flex items-center gap-gutter-sm px-gutter-lg py-gutter-sm rounded-t-md border font-body text-label-lg transition-colors duration-state-change ease-state-change ' +
+            (on
+              ? 'border-light-outline-variant bg-light-surface-container-lowest text-light-primary'
+              : 'border-transparent text-light-on-surface-variant hover:bg-light-surface-container-high');
+        });
+      }
+
+      Array.prototype.forEach.call(document.querySelectorAll('[data-shortcut-tab]'), function (tab) {
+        tab.addEventListener('click', function () {
+          shortcutsTab = tab.getAttribute('data-shortcut-tab');
+          renderShortcutsTab();
+        });
+      });
+
       function render() {
         renderEngine();
         renderList();
+        renderKeyShortcuts();
+        renderShortcutsTab();
         renderClipboard();
         applyTheme();
         renderTheme();
