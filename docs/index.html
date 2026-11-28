@@ -97,6 +97,90 @@
 
   footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 24px 0 40px; color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   code { background: rgba(255,255,255,.06); padding: 1px 6px; border-radius: 5px; font-size: 12.5px; }
+  /* ClickBind: a warm desktop workbench with the gesture preview as its focal point. */
+  :root { --bg:#f4f1e9; --panel:#fffdf8; --panel-2:#ebe7dd; --line:#d8d2c5; --text:#252720; --muted:#5d6057; --accent:#8c4729; --accent-2:#8c4729; --ok:#607748; }
+  body { background:var(--bg); color:var(--text); }
+  a { color:var(--accent); }
+  .wrap { max-width:1160px; }
+  header { padding:20px 0 16px; border-bottom:1px solid var(--line); }
+  .brand { gap:9px; font-weight:600; letter-spacing:0; }
+  .logo { width:30px; height:30px; border-radius:7px; background:var(--accent); color:#fffdf8; font-size:13px; font-weight:600; }
+  nav a { margin-left:22px; }
+  .hero { display:grid; grid-template-columns:minmax(0,.92fr) minmax(430px,1.08fr); gap:52px; align-items:center; text-align:left; padding:64px 0 60px; }
+  .hero-copy { min-width:0; }
+  .pill { display:flex; width:max-content; border:0; border-radius:0; padding:0; background:none; color:var(--accent); font-size:13px; font-weight:600; }
+  .dot { width:7px; height:7px; background:var(--accent); }
+  h1 { max-width:540px; font-size:clamp(38px,4.1vw,54px); line-height:1.06; letter-spacing:-1.6px; font-weight:600; margin:18px 0 16px; }
+  .lede { max-width:500px; margin:0 0 24px; color:var(--muted); font-size:17px; line-height:1.55; }
+  .download { gap:10px; background:var(--accent); color:#fffdf8; font-size:15px; font-weight:600; padding:14px 20px; border-radius:8px; box-shadow:0 2px 5px rgba(37,39,32,.12); transition:background-color .14s ease-out; }
+  .download:hover { background:#71371f; transform:none; box-shadow:0 2px 5px rgba(37,39,32,.12); }
+  .download:active { transform:scale(.985); }
+  .meta { margin-top:12px; font-size:12px; }
+  .meta strong { font-weight:600; }
+  .product-preview { min-width:0; overflow:hidden; border:1px solid var(--line); border-radius:14px; background:var(--panel); box-shadow:0 18px 48px rgba(37,39,32,.12); }
+  .preview-window-bar { min-height:48px; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:0 16px; border-bottom:1px solid var(--line); background:#f8f6f0; }
+  .preview-brand { display:flex; align-items:center; gap:9px; color:var(--text); font-size:13px; font-weight:600; }
+  .preview-mark { display:grid; width:22px; height:22px; place-items:center; border-radius:5px; background:var(--accent); color:white; font-size:10px; }
+  .preview-state { display:flex; align-items:center; gap:7px; color:var(--muted); font-size:12px; }
+  .preview-state i,.preview-live-dot { width:7px; height:7px; border-radius:50%; background:var(--ok); }
+  .preview-body { display:grid; grid-template-columns:144px minmax(0,1fr); min-height:292px; }
+  .preview-rail { display:flex; flex-direction:column; gap:5px; padding:18px 12px; border-right:1px solid var(--line); background:#f8f6f0; }
+  .preview-nav { display:flex; align-items:center; gap:9px; min-height:34px; padding:0 9px; border-radius:6px; color:var(--muted); font-size:12px; }
+  .preview-nav.active { background:#eee6dc; color:var(--accent); font-weight:600; }
+  .preview-nav-mark { width:14px; height:14px; border:1.5px solid currentColor; border-radius:4px; }
+  .preview-rail-note { display:flex; align-items:center; gap:8px; margin-top:auto; padding:10px 8px 0; border-top:1px solid var(--line); color:var(--text); font-size:11px; }
+  .preview-rail-note span:last-child { display:flex; flex-direction:column; gap:2px; }
+  .preview-rail-note small { color:var(--muted); font-size:10px; }
+  .preview-main { min-width:0; padding:20px 18px; }
+  .preview-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:15px; }
+  .preview-kicker { color:var(--muted); font-size:11px; }
+  .preview-head h3 { margin:3px 0 0; color:var(--text); font-size:16px; font-weight:600; }
+  .preview-add { flex:none; padding:7px 9px; border:1px solid var(--line); border-radius:6px; color:var(--text); font-size:10px; }
+  .preview-row { display:grid; grid-template-columns:34px minmax(0,1fr) auto; align-items:center; gap:10px; padding:12px 0; border-top:1px solid var(--line); }
+  .gesture-mark { display:grid; width:30px; height:30px; place-items:center; border:1px solid #dbc5b7; border-radius:7px; background:#f3e9e0; color:var(--accent); font-size:10px; font-weight:700; }
+  .gesture-mark.both { background:var(--accent); color:white; border-color:var(--accent); }
+  .trigger-name { min-width:0; display:flex; flex-direction:column; gap:3px; color:var(--text); font-size:11px; font-weight:600; }
+  .trigger-name small { color:var(--muted); font-size:10px; font-weight:400; }
+  .action-name { display:flex; flex-direction:column; align-items:flex-end; gap:4px; color:var(--text); font-size:11px; font-weight:600; white-space:nowrap; }
+  .action-name kbd { padding:3px 5px; border:1px solid var(--line); border-radius:4px; background:#f8f6f0; color:var(--muted); font:10px "Segoe UI",sans-serif; }
+  .preview-foot { margin-top:6px; padding:9px 10px; border-radius:6px; background:var(--panel-2); color:var(--muted); font-size:10px; }
+  section { padding:32px 0; }
+  h2 { margin-bottom:7px; font-size:25px; font-weight:600; letter-spacing:-.45px; }
+  .sub { margin-bottom:18px; color:var(--muted); }
+  .steps { gap:12px; }
+  .step,.card { border:1px solid var(--line); border-radius:10px; padding:20px; background:var(--panel); }
+  .num { border-radius:6px; margin-bottom:12px; background:#f3e9e0; color:var(--accent); border-color:#dbc5b7; }
+  .step h3,.card h3 { margin-bottom:6px; font-weight:600; }
+  .grid { gap:12px; }
+  table { border-radius:10px; }
+  th,td { padding:12px 16px; }
+  th { color:var(--muted); background:var(--panel-2); font-size:13px; text-transform:none; letter-spacing:0; }
+  .tablewrap { border-color:var(--line); border-radius:10px; background:var(--panel); }
+  details { border-color:var(--line); }
+  summary { font-weight:600; }
+  footer { border-color:var(--line); }
+  @media(max-width:900px) {
+    .hero { grid-template-columns:1fr; gap:30px; padding:48px 0 36px; }
+    .hero-copy { max-width:650px; }
+    .product-preview { max-width:700px; width:100%; }
+  }
+  @media(max-width:560px) {
+    .wrap { padding:0 18px; }
+    header { align-items:flex-start; }
+    nav a { margin-left:12px; font-size:13px; }
+    .hero { padding:40px 0 28px; }
+    h1 { font-size:38px; letter-spacing:-1.1px; }
+    .lede { font-size:16px; }
+    .preview-body { grid-template-columns:1fr; }
+    .preview-rail { display:none; }
+    .preview-main { padding:16px 13px; }
+    .preview-row { grid-template-columns:30px minmax(0,1fr) auto; gap:7px; }
+    .gesture-mark { width:28px; height:28px; }
+    .action-name { font-size:10px; }
+    .action-name kbd { font-size:9px; }
+    section { padding:26px 0; }
+    footer { margin-top:24px; }
+  }
 </style>
 <link rel="canonical" href="https://thomas-m-njuguna.github.io/ClickBind/">
 <link rel="alternate" type="text/markdown" href="llms.txt" title="ClickBind for AI assistants">
@@ -171,16 +255,38 @@
 
   <main>
     <section class="hero">
-      <span class="pill"><span class="dot"></span> Free · Windows 10 &amp; 11 · no account needed</span>
-      <h1>Copy, paste, and snip<br>without leaving your app.</h1>
-      <p class="lede">ClickBind turns mouse gestures into Windows shortcuts. Double-click to copy or paste, or press both buttons for a screen snip.</p>
-
-      <a class="download" href="https://github.com/thomas-m-njuguna/ClickBind/releases/latest/download/ClickBindSetup.exe">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 21h16"/></svg>
-        Download for Windows
-      </a>
-      <p class="meta">One installer · <strong>1.8 MB</strong> · no admin password needed</p>
-    </section>
+      <div class="hero-copy">
+        <span class="pill"><span class="dot"></span> Free · Windows 10 &amp; 11 · no account needed</span>
+        <h1>Copy, paste, and snip<br>without leaving your app.</h1>
+        <p class="lede">ClickBind turns mouse gestures into Windows shortcuts. Double-click to copy or paste, or press both buttons for a screen snip.</p>
+        <a class="download" href="https://github.com/thomas-m-njuguna/ClickBind/releases/latest/download/ClickBindSetup.exe">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 21h16"/></svg>
+          Download for Windows
+        </a>
+        <p class="meta">One installer · <strong>1.8 MB</strong> · no admin password needed</p>
+      </div>
+      <div class="product-preview" role="img" aria-label="ClickBind settings preview showing mouse gestures for copy, paste, and screen snip">
+        <div class="preview-window-bar">
+          <div class="preview-brand"><span class="preview-mark">CB</span>ClickBind</div>
+          <span class="preview-state"><i></i>Engine active</span>
+        </div>
+        <div class="preview-body">
+          <aside class="preview-rail" aria-hidden="true">
+            <div class="preview-nav active"><span class="preview-nav-mark"></span>Shortcuts</div>
+            <div class="preview-nav"><span class="preview-nav-mark"></span>Clipboard</div>
+            <div class="preview-nav"><span class="preview-nav-mark"></span>Settings</div>
+            <div class="preview-rail-note"><span class="preview-live-dot"></span><span><b>Ready</b><small>Across Windows</small></span></div>
+          </aside>
+          <div class="preview-main">
+            <div class="preview-head"><div><span class="preview-kicker">Mouse bindings</span><h3>Everyday actions</h3></div><span class="preview-add">+ Add shortcut</span></div>
+            <div class="preview-row"><span class="gesture-mark">R × 2</span><span class="trigger-name">Double right-click<small>Mouse gesture</small></span><span class="action-name">Copy<kbd>Ctrl + C</kbd></span></div>
+            <div class="preview-row"><span class="gesture-mark">L × 2</span><span class="trigger-name">Double left-click<small>Mouse gesture</small></span><span class="action-name">Paste<kbd>Ctrl + V</kbd></span></div>
+            <div class="preview-row"><span class="gesture-mark both">L + R</span><span class="trigger-name">Both buttons<small>Press together</small></span><span class="action-name">Screen snip<kbd>Win + Shift + S</kbd></span></div>
+            <div class="preview-foot">Your gestures work in the apps you use</div>
+          </div>
+        </div>
+      </div>
+    </section>ion>
 
     <section id="install">
       <h2>Install in three steps</h2>
